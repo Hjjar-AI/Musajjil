@@ -30,34 +30,61 @@ object EmployeeFormSchema {
 }
 
 @Composable
-fun EmployeeForm(existing: Employee?, employees: List<Employee>, busy: Boolean, onDismiss: () -> Unit, onSave: (Employee) -> Unit) {
+fun EmployeeForm(existing: Employee?, data: RegisterData, busy: Boolean, onDismiss: () -> Unit, onSave: (Employee) -> Unit) {
     val id = rememberSaveable { existing?.id ?: UUID.randomUUID().toString() }
     var values by rememberSaveable { mutableStateOf(mapOf(
-        EmployeeField.Name.name to existing?.name.orEmpty(), EmployeeField.Number.name to existing?.number.orEmpty(),
-        EmployeeField.NationalId.name to existing?.nationalId.orEmpty(), EmployeeField.Department.name to existing?.department.orEmpty(),
-        EmployeeField.JobTitle.name to existing?.jobTitle.orEmpty(), EmployeeField.Phone.name to existing?.phone.orEmpty(),
-        EmployeeField.EmploymentStart.name to existing?.employmentStart?.let(DateText::format).orEmpty())) }
+        "Name" to existing?.name.orEmpty(), "Number" to existing?.number.orEmpty(), "NationalId" to existing?.nationalId.orEmpty(),
+        "JobTitle" to existing?.jobTitle.orEmpty(), "Phone" to existing?.phone.orEmpty(),
+        "EmploymentStart" to existing?.employmentStart?.let(DateText::format).orEmpty())) }
+    var departmentId by rememberSaveable { mutableStateOf(existing?.departmentId.orEmpty()) }
+    var classificationId by rememberSaveable { mutableStateOf(existing?.classificationId.orEmpty()) }
+    var tagIds by rememberSaveable { mutableStateOf(existing?.tagIds ?: emptySet()) }
+    var customValues by rememberSaveable { mutableStateOf(existing?.customValues ?: emptyMap()) }
     var showDuplicate by rememberSaveable { mutableStateOf(false) }
-    fun field(key: EmployeeField) = values[key.name].orEmpty().trim()
-    val dateInput = field(EmployeeField.EmploymentStart)
-    val valid = EmployeeFormSchema.fields.none { it.required && field(it.key).isBlank() } &&
-        (dateInput.isBlank() || DateText.parse(dateInput) != null)
-    fun candidate() = Employee(id, field(EmployeeField.Name), field(EmployeeField.Number), field(EmployeeField.NationalId),
-        field(EmployeeField.Department), field(EmployeeField.JobTitle), field(EmployeeField.Phone),
-        dateInput.takeIf(String::isNotBlank)?.let(DateText::parse), existing?.archived ?: false)
-    fun duplicates(value: Employee) = employees.any { other -> other.id != value.id &&
-        (other.name.equals(value.name, ignoreCase = true) || (value.number.isNotBlank() && value.number == other.number) ||
-            (value.nationalId.isNotBlank() && value.nationalId == other.nationalId)) }
+    fun field(key: String) = values[key].orEmpty().trim()
+    val dateInput = field("EmploymentStart")
+    val department = data.groups.firstOrNull { it.id == departmentId }?.name.orEmpty()
+    fun candidate() = Employee(id, field("Name"), field("Number"), field("NationalId"), department, field("JobTitle"), field("Phone"),
+        dateInput.takeIf(String::isNotBlank)?.let(DateText::parse), existing?.archived ?: false, departmentId, classificationId, tagIds, customValues)
+    val definitions = data.fields.filterNot { it.archived }.sortedWith(compareBy<FieldDefinition> { it.position }.thenBy { it.id })
+    val invalid = EmployeeValidation.invalidFields(candidate(), definitions)
+    val valid = invalid.isEmpty() && (dateInput.isBlank() || DateText.parse(dateInput) != null)
+    fun duplicates(value: Employee) = data.employees.any { other -> other.id != value.id &&
+        ((value.name.isNotBlank() && other.name.equals(value.name, ignoreCase = true)) ||
+            (value.number.isNotBlank() && value.number == other.number) || (value.nationalId.isNotBlank() && value.nationalId == other.nationalId)) }
 
     FormSheet(stringResource(if (existing == null) R.string.add_employee else R.string.edit_employee), onDismiss,
         onSave = { val value = candidate(); if (duplicates(value)) showDuplicate = true else onSave(value) }, busy = busy, saveEnabled = valid) {
-        EmployeeFormSchema.fields.forEach { spec ->
-            val value = values[spec.key.name].orEmpty()
-            val onChange: (String) -> Unit = { values = values + (spec.key.name to it) }
-            if (spec.date) AppDateField(value, onChange, stringResource(spec.label), optional = !spec.required,
-                error = if (value.isNotBlank() && DateText.parse(value) == null) stringResource(R.string.invalid_date) else null)
-            else AppTextField(value, onChange, stringResource(spec.label), keyboardType = spec.keyboard,
-                hint = stringResource(if (spec.required) R.string.required_field else R.string.optional))
+        definitions.forEach { definition ->
+            val builtin = definition.builtinKey.isNotBlank()
+            val value = if (builtin) values[definition.builtinKey].orEmpty() else customValues[definition.id].orEmpty()
+            val onChange: (String) -> Unit = { next ->
+                if (builtin) values = values + (definition.builtinKey to next) else customValues = customValues + (definition.id to next)
+            }
+            val hint = stringResource(if (definition.required) R.string.required_field else R.string.optional)
+            val error = if (definition in invalid && value.isNotBlank()) stringResource(when (definition.type) {
+                FieldType.Date -> R.string.invalid_date
+                FieldType.Number -> R.string.field_number_invalid
+                else -> R.string.required_field
+            }) else null
+            when {
+                definition.builtinKey == "Department" -> AppChoiceField(groupChoices(data.groups, GroupKind.Department, departmentId),
+                    departmentId, { departmentId = it }, definition.label)
+                definition.type == FieldType.Date -> AppDateField(value, onChange, definition.label, error, optional = !definition.required)
+                definition.type == FieldType.Dropdown -> AppChoiceField(
+                    listOf(ChoiceOption("", stringResource(R.string.none))) + (definition.choices + value.takeIf(String::isNotBlank).orEmpty())
+                        .filter(String::isNotBlank).distinct().map { ChoiceOption(it, it) }, value, onChange, definition.label)
+                else -> AppTextField(value, onChange, definition.label, hint = hint, error = error, keyboardType =
+                    if (definition.type == FieldType.Number) KeyboardType.Decimal
+                    else EmployeeFormSchema.fields.firstOrNull { it.key.name == definition.builtinKey }?.keyboard ?: KeyboardType.Text)
+            }
+        }
+        if (data.groups.any { it.kind == GroupKind.Classification }) AppChoiceField(
+            groupChoices(data.groups, GroupKind.Classification, classificationId), classificationId,
+            { classificationId = it }, stringResource(R.string.classification))
+        if (data.groups.any { it.kind == GroupKind.Tag }) {
+            Text(stringResource(R.string.tags), style = MaterialTheme.typography.titleMedium)
+            TagFields(data.groups, tagIds) { tagIds = it }
         }
     }
     if (showDuplicate) AlertDialog(onDismissRequest = { showDuplicate = false },

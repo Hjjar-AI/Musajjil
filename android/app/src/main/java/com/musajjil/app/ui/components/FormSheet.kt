@@ -18,7 +18,7 @@ import com.musajjil.app.ui.theme.LocalAppDimensions
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FormSheet(title: String, onDismiss: () -> Unit, onSave: (() -> Unit)? = null, busy: Boolean = false,
-    saveEnabled: Boolean = true, content: @Composable ColumnScope.() -> Unit) {
+    saveEnabled: Boolean = true, saveLabel: String? = null, content: @Composable ColumnScope.() -> Unit) {
     val space = LocalAppDimensions.current
     ModalBottomSheet(onDismissRequest = { if (!busy) onDismiss() },
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
@@ -34,7 +34,7 @@ fun FormSheet(title: String, onDismiss: () -> Unit, onSave: (() -> Unit)? = null
             if (onSave != null) {
                 Button(onClick = onSave, enabled = saveEnabled && !busy, modifier = Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.medium) {
                     if (busy) CircularProgressIndicator(Modifier.size(space.large), strokeWidth = space.tiny / 2)
-                    else Text(stringResource(R.string.save))
+                    else Text(saveLabel ?: stringResource(R.string.save))
                 }
             }
             Spacer(Modifier.height(space.section))

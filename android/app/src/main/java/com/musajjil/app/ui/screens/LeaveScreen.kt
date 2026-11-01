@@ -1,6 +1,7 @@
 package com.musajjil.app.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -18,14 +19,15 @@ import com.musajjil.app.ui.theme.LocalAppDimensions
 import java.time.LocalDate
 
 @Composable
-fun LeaveScreen(data: RegisterData, today: LocalDate, onAddLeave: () -> Unit, onAddHours: () -> Unit, onEditLeave: (DayLeave) -> Unit) {
+fun LeaveScreen(data: RegisterData, today: LocalDate, onAddLeave: () -> Unit, onAddHours: () -> Unit,
+    onEditLeave: (DayLeave) -> Unit, onEditHours: (HourEntry) -> Unit) {
     val space = LocalAppDimensions.current
     var hoursTab by rememberSaveable { mutableStateOf(false) }
     var year by rememberSaveable { mutableIntStateOf(today.year) }
     val years = (data.leaves.flatMap { it.allocations.keys } + data.hours.map { it.date.year } + today.year + year).distinct().sortedDescending()
     val leaves = data.leaves.filter { (it.allocations[year] ?: 0) > 0 }
     val hours = data.hours.filter { it.date.year == year }
-    val employeeNames = data.employees.associate { it.id to it.name }
+    val employeeNames = data.employees.associate { it.id to it.displayName }
     val canAdd = data.employees.any { !it.archived }
     LazyColumn(contentPadding = PaddingValues(space.page), verticalArrangement = Arrangement.spacedBy(space.medium)) {
         item { ScreenHeading(stringResource(R.string.leave), action = {
@@ -50,7 +52,7 @@ fun LeaveScreen(data: RegisterData, today: LocalDate, onAddLeave: () -> Unit, on
                     style = MaterialTheme.typography.bodyMedium)
             } }
             if (hours.isEmpty()) item { EmptyState(stringResource(R.string.no_hours), stringResource(R.string.no_hours_body), Icons.Outlined.Schedule) }
-            items(hours, key = { it.id }) { hour -> SectionCard {
+            items(hours, key = { it.id }) { hour -> SectionCard(Modifier.clickable { onEditHours(hour) }) {
                 Row(horizontalArrangement = Arrangement.spacedBy(space.medium)) {
                     Column(Modifier.weight(1f)) {
                         Text(employeeNames[hour.employeeId].orEmpty(), style = MaterialTheme.typography.titleMedium)
@@ -58,6 +60,7 @@ fun LeaveScreen(data: RegisterData, today: LocalDate, onAddLeave: () -> Unit, on
                     }
                     StatusChip(stringResource(R.string.hours_value, hour.hours))
                 }
+                if (hour.notes.isNotBlank()) Text(hour.notes, style = MaterialTheme.typography.bodyMedium)
             } }
         } else {
             item { SectionCard { DetailValue(stringResource(R.string.recorded_days), leaves.sumOf { (it.allocations[year] ?: 0).toLong() }.toString()) } }

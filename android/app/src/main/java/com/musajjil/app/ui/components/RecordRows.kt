@@ -18,7 +18,7 @@ import com.musajjil.app.ui.theme.LocalAppDimensions
 @Composable
 fun employeeChoices(employees: List<Employee>): List<ChoiceOption> = employees.map { employee ->
     val identifier = employee.number.ifBlank { employee.nationalId }.takeIf(String::isNotBlank)
-    val description = listOfNotNull(employee.name, identifier?.let { stringResource(R.string.employee_number_value, it) },
+    val description = listOfNotNull(employee.displayName, identifier?.let { stringResource(R.string.employee_number_value, it) },
         employee.department.takeIf(String::isNotBlank)).joinToString(" · ")
     ChoiceOption(employee.id, description)
 }
@@ -30,11 +30,11 @@ fun EmployeeRow(employee: Employee, onClick: () -> Unit, modifier: Modifier = Mo
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(space.medium)) {
         Surface(Modifier.size(space.avatar), shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.primaryContainer) {
             Box(contentAlignment = Alignment.Center) {
-                Text(employee.name.take(1), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                Text(employee.displayName.take(1), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
             }
         }
         Column(Modifier.weight(1f)) {
-            Text(employee.name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(employee.displayName, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
             val number = employee.number.takeIf(String::isNotBlank)?.let { stringResource(R.string.employee_number_value, it) }
             val department = employee.department.ifBlank { stringResource(R.string.no_department) }
             Text(listOfNotNull(number, department).joinToString(" · "), style = MaterialTheme.typography.bodyMedium,
@@ -45,12 +45,13 @@ fun EmployeeRow(employee: Employee, onClick: () -> Unit, modifier: Modifier = Mo
 }
 
 @Composable
-fun DayLeaveRow(leave: DayLeave, employeeName: String, onClick: () -> Unit) {
+fun DayLeaveRow(leave: DayLeave, employeeName: String, showType: Boolean = true, onClick: () -> Unit) {
     Row(Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = LocalAppDimensions.current.medium),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(LocalAppDimensions.current.medium)) {
         Column(Modifier.weight(1f)) {
             Text(employeeName, style = MaterialTheme.typography.titleMedium)
-            Text(stringResource(R.string.date_range, DateText.format(leave.start), DateText.format(leave.end)),
+            Text(listOfNotNull(stringResource(R.string.date_range, DateText.format(leave.start), DateText.format(leave.end)),
+                leave.typeName.takeIf { showType }).joinToString(" · "),
                 style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         StatusChip(stringResource(R.string.days_value, leave.days))

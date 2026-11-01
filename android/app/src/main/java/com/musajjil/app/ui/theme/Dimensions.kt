@@ -15,6 +15,7 @@ data class AppDimensions(
     val section: Dp = 24.dp,
     val page: Dp = 20.dp,
     val avatar: Dp = 42.dp,
+    val brandIcon: Dp = 32.dp,
     val maxContentWidth: Dp = 840.dp,
 )
 

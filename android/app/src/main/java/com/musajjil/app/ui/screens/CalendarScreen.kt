@@ -34,11 +34,13 @@ fun CalendarScreen(data: RegisterData, today: LocalDate, onEditLeave: (DayLeave)
     var monthText by rememberSaveable { mutableStateOf(YearMonth.from(today).toString()) }
     var dayText by rememberSaveable { mutableStateOf(today.toString()) }
     var department by rememberSaveable { mutableStateOf("") }
+    var tagId by rememberSaveable { mutableStateOf("") }
     val month = YearMonth.parse(monthText)
     val selected = LocalDate.parse(dayText)
-    val names = data.employees.associate { it.id to it.name }
+    val names = data.employees.associate { it.id to it.displayName }
     val departments = data.leaves.map { it.department }.filter(String::isNotBlank).distinct().sorted()
-    val leaves = data.leaves.filter { department.isBlank() || it.department == department }
+    val members = data.employees.filter { tagId in it.tagIds }.map { it.id }.toSet()
+    val leaves = data.leaves.filter { (department.isBlank() || it.department == department) && (tagId.isBlank() || it.employeeId in members) }
     val records = leaves.filter { !selected.isBefore(it.start) && !selected.isAfter(it.end) }
     val weekdays = stringArrayResource(R.array.weekdays_sunday_first)
     val first = month.atDay(1)
@@ -50,6 +52,10 @@ fun CalendarScreen(data: RegisterData, today: LocalDate, onEditLeave: (DayLeave)
         }) }
         item { AppChoiceField(listOf(ChoiceOption("", stringResource(R.string.all_departments))) + departments.map { ChoiceOption(it, it) },
             department, { department = it }, stringResource(R.string.department)) }
+        if (data.groups.any { it.kind == GroupKind.Tag }) item {
+            AppChoiceField(listOf(ChoiceOption("", stringResource(R.string.all_groups))) + data.groups.filter { it.kind == GroupKind.Tag }
+                .map { ChoiceOption(it.id, it.name) }, tagId, { tagId = it }, stringResource(R.string.tags))
+        }
         item { SectionCard {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = { selectMonth(month.minusMonths(1)) }) { Icon(Icons.Outlined.ChevronRight, stringResource(R.string.previous_month)) }

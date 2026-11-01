@@ -10,21 +10,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.musajjil.app.R
+import com.musajjil.app.backup.BackupStatus
 import com.musajjil.app.domain.*
 import com.musajjil.app.ui.components.*
+import com.musajjil.app.ui.forms.ContractStatus
+import com.musajjil.app.ui.forms.timestampText
 import com.musajjil.app.ui.theme.LocalAppDimensions
 import java.time.LocalDate
 
 @Composable
 fun HomeScreen(data: RegisterData, today: LocalDate, onRecordLeave: () -> Unit, onRecordHours: () -> Unit,
-    onAddEmployee: () -> Unit, onAllLeaves: () -> Unit, onEditLeave: (DayLeave) -> Unit) {
+    onAddEmployee: () -> Unit, onAllLeaves: () -> Unit, onEditLeave: (DayLeave) -> Unit,
+    backup: BackupStatus, onBackups: () -> Unit, onService: (Employee) -> Unit, onAllServices: () -> Unit) {
     val space = LocalAppDimensions.current
     val active = data.employees.filterNot { it.archived }
     val onLeave = data.leaves.filter { !today.isBefore(it.start) && !today.isAfter(it.end) }
         .map { it.employeeId }.distinct().count { id -> active.any { it.id == id } }
     val days = data.leaves.sumOf { (it.allocations[today.year] ?: 0).toLong() }
     val pending = data.hours.filter { it.date.year == today.year }.sumOf { (it.hours - it.consumedHours).toLong() }
-    val employeeNames = data.employees.associate { it.id to it.name }
+    val employeeNames = data.employees.associate { it.id to it.displayName }
+    val dueContracts = data.serviceProfiles.filter { profile -> profile.contractEnd != null && profile.contractEnd <= today.plusDays(30) && active.any { it.id == profile.employeeId } }
     LazyColumn(contentPadding = PaddingValues(space.page), verticalArrangement = Arrangement.spacedBy(space.large)) {
         item {
             Column(verticalArrangement = Arrangement.spacedBy(space.small)) {
@@ -51,6 +56,19 @@ fun HomeScreen(data: RegisterData, today: LocalDate, onRecordLeave: () -> Unit, 
             }
         }
         item { Text(stringResource(R.string.year_summary, today.year), style = MaterialTheme.typography.titleMedium) }
+        item { SectionCard(title = stringResource(R.string.backups), action = { TextButton(onBackups) { Text(stringResource(R.string.view_all)) } }) {
+            if (backup.folderUri == null) Text(stringResource(R.string.backup_folder_first), style = MaterialTheme.typography.bodyMedium)
+            else DetailValue(stringResource(R.string.backup_last_auto), if (backup.lastAutomatic == 0L) stringResource(R.string.backup_never) else timestampText(backup.lastAutomatic))
+            if (backup.error.isNotBlank()) Text(backup.error, color = MaterialTheme.colorScheme.error)
+        } }
+        if (dueContracts.isNotEmpty()) item { SectionCard(title = stringResource(R.string.contract_alerts),
+            action = { TextButton(onAllServices) { Text(stringResource(R.string.view_all)) } }) {
+            dueContracts.sortedBy { it.contractEnd }.take(3).forEach { profile ->
+                val employee = active.first { it.id == profile.employeeId }
+                NavigationRow(employee.displayName, { onService(employee) })
+                ContractStatus(profile, today)
+            }
+        } }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(space.medium)) {
                 SummaryTile(active.size.toString(), stringResource(R.string.active_employees), Icons.Outlined.PeopleAlt, Modifier.weight(1f))

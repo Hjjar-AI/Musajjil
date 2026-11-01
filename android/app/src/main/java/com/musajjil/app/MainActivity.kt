@@ -15,7 +15,8 @@ import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     private val viewModel: RegisterViewModel by viewModels {
-        RegisterViewModel.Factory((application as MusajjilApplication).repository)
+        val app = application as MusajjilApplication
+        RegisterViewModel.Factory(app.repository, app.backups)
     }
 
     override fun attachBaseContext(newBase: Context) {
@@ -31,5 +32,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent { MusajjilTheme { RegisterApp(viewModel) } }
+    }
+    override fun onResume() {
+        super.onResume()
+        (application as MusajjilApplication).backups.schedule()
     }
 }

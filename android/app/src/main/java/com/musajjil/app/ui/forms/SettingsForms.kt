@@ -32,34 +32,25 @@ fun ThresholdForm(threshold: Int, busy: Boolean, onDismiss: () -> Unit, onSave: 
 fun LeavePolicyForm(policy: LeavePolicy, busy: Boolean, onDismiss: () -> Unit, onSave: (LeavePolicy) -> Unit) {
     var excluded by rememberSaveable { mutableStateOf(policy.excludedWeekdays.map { it.value }) }
     var holidays by rememberSaveable { mutableStateOf(policy.excludeHolidays) }
-    val weekdays = stringArrayResource(R.array.weekdays_sunday_first)
-    val days = listOf(DayOfWeek.SUNDAY) + DayOfWeek.values().filter { it != DayOfWeek.SUNDAY }
-    FormSheet(stringResource(R.string.leave_settings), onDismiss,
-        onSave = { onSave(LeavePolicy(excluded.map(DayOfWeek::of).toSet(), holidays)) }, busy = busy) {
-        Text(stringResource(R.string.leave_settings_hint), style = MaterialTheme.typography.bodyMedium)
-        days.forEachIndexed { index, day ->
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(day.value in excluded, { checked -> excluded = if (checked) excluded + day.value else excluded - day.value }, enabled = !busy)
-                Text(weekdays[index], style = MaterialTheme.typography.bodyLarge)
-            }
-        }
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text(stringResource(R.string.exclude_holidays), Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
-            Switch(holidays, { holidays = it }, enabled = !busy)
-        }
+    val selected = LeavePolicy(excluded.map(DayOfWeek::of).toSet(), holidays)
+    FormSheet(stringResource(R.string.leave_settings), onDismiss, onSave = { onSave(selected) }, busy = busy) {
+        PolicyControls(selected) { excluded = it.excludedWeekdays.map { day -> day.value }; holidays = it.excludeHolidays }
     }
 }
 
 @Composable
-fun HolidayForm(busy: Boolean, onDismiss: () -> Unit, onSave: (Holiday) -> Unit) {
-    val id = rememberSaveable { UUID.randomUUID().toString() }
-    var name by rememberSaveable { mutableStateOf("") }
-    var dateText by rememberSaveable { mutableStateOf(DateText.format(LocalDate.now())) }
+fun HolidayForm(existing: Holiday?, busy: Boolean, onDismiss: () -> Unit, onSave: (Holiday) -> Unit, onDelete: (String) -> Unit) {
+    val id = rememberSaveable { existing?.id ?: UUID.randomUUID().toString() }
+    var name by rememberSaveable { mutableStateOf(existing?.name.orEmpty()) }
+    var dateText by rememberSaveable { mutableStateOf(DateText.format(existing?.date ?: LocalDate.now())) }
+    var deleting by rememberSaveable { mutableStateOf(false) }
     val date = DateText.parse(dateText)
-    FormSheet(stringResource(R.string.add_holiday), onDismiss,
+    FormSheet(stringResource(if (existing == null) R.string.add_holiday else R.string.edit_holiday), onDismiss,
         onSave = { onSave(Holiday(id, name, requireNotNull(date))) }, busy = busy, saveEnabled = name.isNotBlank() && date != null) {
         AppTextField(name, { name = it }, stringResource(R.string.holiday_name))
         AppDateField(dateText, { dateText = it }, stringResource(R.string.entry_date),
             error = if (date == null) stringResource(R.string.invalid_date) else null)
+        if (existing != null) TextButton({ deleting = true }, enabled = !busy) { Text(stringResource(R.string.delete_record)) }
     }
+    if (deleting) DeleteRecordDialog(busy, { deleting = false }, { deleting = false; onDelete(it) })
 }

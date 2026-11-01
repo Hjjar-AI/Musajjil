@@ -1,6 +1,7 @@
 package com.musajjil.app.domain
 
 import java.time.LocalDate
+import kotlinx.serialization.Serializable
 
 object LeaveRules {
     /** Inclusive dates; a holiday/weekend date is excluded once, even with duplicate labels. */
@@ -24,7 +25,7 @@ object LeaveRules {
             allocation.values.all { it >= 0 } && allocation.values.sumOf { it.toLong() } == days.toLong()
 }
 
-data class HourConsumption(val entryId: String, val hours: Int)
+@Serializable data class HourConsumption(val entryId: String, val hours: Int)
 data class ConversionPlan(val days: Long, val hours: Long, val sources: List<HourConsumption>)
 
 object HourlyRules {

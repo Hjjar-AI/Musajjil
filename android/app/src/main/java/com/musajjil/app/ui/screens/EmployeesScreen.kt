@@ -24,7 +24,7 @@ fun EmployeesScreen(employees: List<Employee>, onAdd: () -> Unit, onSelect: (Emp
     val departments = employees.map { it.department }.filter(String::isNotBlank).distinct().sorted()
     val filtered = employees.filter { employee -> employee.archived == archived &&
         (department.isEmpty() || employee.department == department) &&
-        listOf(employee.name, employee.number, employee.nationalId, employee.department).any { it.contains(query.trim(), ignoreCase = true) } }
+        listOf(employee.displayName, employee.number, employee.nationalId, employee.department).any { it.contains(query.trim(), ignoreCase = true) } }
     LazyColumn(contentPadding = PaddingValues(space.page), verticalArrangement = Arrangement.spacedBy(space.small)) {
         item { ScreenHeading(stringResource(R.string.employees), action = {
             FilledTonalIconButton(onAdd) { Icon(Icons.Outlined.PersonAddAlt, stringResource(R.string.add_employee)) }

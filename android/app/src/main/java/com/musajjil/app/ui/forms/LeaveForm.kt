@@ -13,7 +13,7 @@ import java.util.UUID
 
 @Composable
 fun LeaveForm(data: RegisterData, existing: DayLeave?, initialEmployee: String?, busy: Boolean,
-    onDismiss: () -> Unit, onSave: (DayLeave) -> Unit) {
+    onDismiss: () -> Unit, onSave: (DayLeave, String) -> Unit, onDelete: (String) -> Unit) {
     val today = LocalDate.now()
     val initialDate = existing?.start ?: today
     val id = rememberSaveable { existing?.id ?: UUID.randomUUID().toString() }
@@ -21,30 +21,34 @@ fun LeaveForm(data: RegisterData, existing: DayLeave?, initialEmployee: String?,
     var startText by rememberSaveable { mutableStateOf(DateText.format(initialDate)) }
     var endText by rememberSaveable { mutableStateOf(DateText.format(existing?.end ?: today)) }
     var notes by rememberSaveable { mutableStateOf(existing?.notes.orEmpty()) }
+    var reason by rememberSaveable { mutableStateOf("") }
+    var deleting by rememberSaveable { mutableStateOf(false) }
+    var typeId by rememberSaveable { mutableStateOf(existing?.typeId ?: data.leaveTypes.firstOrNull { !it.archived }?.id.orEmpty()) }
+    val selectedType = data.leaveTypes.firstOrNull { it.id == typeId }
     var department by rememberSaveable { mutableStateOf(existing?.department ?: data.employees.firstOrNull { it.id == employeeId }?.department.orEmpty()) }
     val start = DateText.parse(startText)
     val end = DateText.parse(endText)
-    val sameDates = existing != null && start == existing.start && end == existing.end
-    val policy = if (sameDates) existing!!.policy else data.leavePolicy
+    val sameDates = existing != null && start == existing.start && end == existing.end && typeId == existing.typeId
+    val policy = if (sameDates) existing!!.policy else selectedType?.policy ?: data.leavePolicy
     val suggestion = if (sameDates) existing!!.suggestedAllocations else if (start != null && end != null && !end.isBefore(start))
         LeaveRules.suggest(start, end, policy, data.holidays.map { it.date }.toSet()) else emptyMap()
-    val initialSuggestion = existing?.allocations ?: LeaveRules.suggest(today, today, data.leavePolicy, data.holidays.map { it.date }.toSet())
+    val initialSuggestion = existing?.allocations ?: LeaveRules.suggest(today, today, policy, data.holidays.map { it.date }.toSet())
     var daysText by rememberSaveable { mutableStateOf((existing?.days ?: initialSuggestion.values.sum()).toString()) }
     var allocations by rememberSaveable { mutableStateOf(initialSuggestion.mapValues { it.value.toString() }) }
     var manuallyAdjusted by rememberSaveable { mutableStateOf(existing != null && existing.allocations != existing.suggestedAllocations) }
-    var lastRange by rememberSaveable { mutableStateOf("$startText|$endText") }
+    var lastRange by rememberSaveable { mutableStateOf("$startText|$endText|$typeId") }
     var showOverlap by rememberSaveable { mutableStateOf(false) }
     val days = DateText.positiveWholeNumber(daysText)
     val allocationValues = allocations.mapValues { DateText.normalizeDigits(it.value).toIntOrNull() ?: -1 }
-    val valid = start != null && end != null && days != null &&
+    val valid = start != null && end != null && days != null && selectedType != null &&
         data.employees.any { it.id == employeeId && (!it.archived || existing != null) } &&
         LeaveRules.validAllocation(days, allocationValues, start, end)
 
     LaunchedEffect(employeeId) {
         if (employeeId != existing?.employeeId) department = data.employees.firstOrNull { it.id == employeeId }?.department.orEmpty()
     }
-    LaunchedEffect(startText, endText) {
-        val key = "$startText|$endText"
+    LaunchedEffect(startText, endText, typeId) {
+        val key = "$startText|$endText|$typeId"
         if (start != null && end != null && !end.isBefore(start) && key != lastRange) {
             allocations = if (!manuallyAdjusted) suggestion.mapValues { it.value.toString() }
                 else if (start.year == end.year) mapOf(start.year to daysText)
@@ -54,16 +58,19 @@ fun LeaveForm(data: RegisterData, existing: DayLeave?, initialEmployee: String?,
         }
     }
     fun candidate() = DayLeave(id, employeeId, requireNotNull(start), requireNotNull(end), requireNotNull(days),
-        allocationValues, suggestion, department, notes, policy)
+        allocationValues, suggestion, department, notes, policy, typeId,
+        if (sameDates) existing!!.typeName else selectedType?.name.orEmpty())
     fun overlapping() = start != null && end != null && data.leaves.any {
         it.id != id && it.employeeId == employeeId && !it.start.isAfter(end) && !it.end.isBefore(start)
     }
 
     FormSheet(stringResource(if (existing == null) R.string.record_leave else R.string.edit_leave), onDismiss,
-        onSave = { if (overlapping()) showOverlap = true else onSave(candidate()) }, busy = busy, saveEnabled = valid) {
+        onSave = { if (overlapping()) showOverlap = true else onSave(candidate(), reason) }, busy = busy, saveEnabled = valid) {
         AppChoiceField(employeeChoices(data.employees.filter { !it.archived || it.id == existing?.employeeId }),
             employeeId, { employeeId = it }, stringResource(R.string.employee))
-        DetailValue(stringResource(R.string.leave_type), stringResource(R.string.administrative))
+        AppChoiceField(data.leaveTypes.filter { !it.archived || it.id == existing?.typeId }.map { ChoiceOption(it.id, it.name) },
+            typeId, { typeId = it }, stringResource(R.string.leave_type))
+        if (sameDates && existing!!.typeName != selectedType?.name) DetailValue(stringResource(R.string.saved_name), existing.typeName)
         AppDateField(startText, { startText = it }, stringResource(R.string.start_date),
             error = if (startText.isNotBlank() && start == null) stringResource(R.string.invalid_date) else null)
         AppDateField(endText, { endText = it }, stringResource(R.string.end_date), error = when {
@@ -89,9 +96,14 @@ fun LeaveForm(data: RegisterData, existing: DayLeave?, initialEmployee: String?,
         }
         AppTextField(department, { department = it }, stringResource(R.string.department), hint = stringResource(R.string.optional))
         AppTextField(notes, { notes = it }, stringResource(R.string.notes), singleLine = false, hint = stringResource(R.string.optional))
+        if (existing != null) {
+            AppTextField(reason, { reason = it }, stringResource(R.string.reason_optional), singleLine = false)
+            TextButton({ deleting = true }, enabled = !busy) { Text(stringResource(R.string.delete_record)) }
+        }
     }
     if (showOverlap) AlertDialog(onDismissRequest = { showOverlap = false },
         title = { Text(stringResource(R.string.overlap_title)) }, text = { Text(stringResource(R.string.overlap_body)) },
-        confirmButton = { TextButton(onClick = { showOverlap = false; onSave(candidate()) }) { Text(stringResource(R.string.save_anyway)) } },
+        confirmButton = { TextButton(onClick = { showOverlap = false; onSave(candidate(), reason) }) { Text(stringResource(R.string.save_anyway)) } },
         dismissButton = { TextButton(onClick = { showOverlap = false }) { Text(stringResource(R.string.cancel)) } })
+    if (deleting) DeleteRecordDialog(busy, { deleting = false }, { reason = it; deleting = false; onDelete(it) }, initialReason = reason)
 }

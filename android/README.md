@@ -3,6 +3,12 @@
 Native Kotlin / Jetpack Compose application with an Arabic RTL interface and a
 local Room database. This directory is independent of the desktop application.
 
+Version 0.1.1 adds the supplied bitmap icon to the launcher and app header.
+The transparent master and generation/edit details are in [`artwork/`](artwork/README.md).
+The feature expansion was stopped at the user's request and is documented,
+with its untested source retained outside the active build, in
+[`deferred/feature-expansion-2026-11-02/`](deferred/feature-expansion-2026-11-02/README.md).
+
 ## Current increment
 
 - Five tabs: home summary, employees, leave/hours, monthly calendar, and settings.
