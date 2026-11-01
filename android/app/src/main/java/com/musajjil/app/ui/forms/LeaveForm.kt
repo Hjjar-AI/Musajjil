@@ -40,8 +40,10 @@ fun LeaveForm(data: RegisterData, existing: DayLeave?, initialEmployee: String?,
         data.employees.any { it.id == employeeId && (!it.archived || existing != null) } &&
         LeaveRules.validAllocation(days, allocationValues, start, end)
 
-    LaunchedEffect(startText, endText, employeeId) {
+    LaunchedEffect(employeeId) {
         if (employeeId != existing?.employeeId) department = data.employees.firstOrNull { it.id == employeeId }?.department.orEmpty()
+    }
+    LaunchedEffect(startText, endText) {
         val key = "$startText|$endText"
         if (start != null && end != null && !end.isBefore(start) && key != lastRange) {
             allocations = if (!manuallyAdjusted) suggestion.mapValues { it.value.toString() }
@@ -59,7 +61,7 @@ fun LeaveForm(data: RegisterData, existing: DayLeave?, initialEmployee: String?,
 
     FormSheet(stringResource(if (existing == null) R.string.record_leave else R.string.edit_leave), onDismiss,
         onSave = { if (overlapping()) showOverlap = true else onSave(candidate()) }, busy = busy, saveEnabled = valid) {
-        AppChoiceField(data.employees.filter { !it.archived || it.id == existing?.employeeId }.map { ChoiceOption(it.id, it.name) },
+        AppChoiceField(employeeChoices(data.employees.filter { !it.archived || it.id == existing?.employeeId }),
             employeeId, { employeeId = it }, stringResource(R.string.employee))
         DetailValue(stringResource(R.string.leave_type), stringResource(R.string.administrative))
         AppDateField(startText, { startText = it }, stringResource(R.string.start_date),

@@ -2,7 +2,9 @@
 
 This is an Android design proposal based on the agreed product behavior.
 It does not depend on another application's screens, data, or implementation.
-The screens below are planned, not yet built.
+The screens below describe the target flow. The first native implementation in
+[`android/`](../android/README.md) includes the five main tabs and local entry
+forms. Account setup, hosting, reports and several advanced flows remain pending.
 
 ## Interface defaults
 

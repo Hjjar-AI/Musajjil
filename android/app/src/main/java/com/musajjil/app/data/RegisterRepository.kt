@@ -113,4 +113,4 @@ private fun decodeAllocation(value: String): Map<Int, Int> = JSONObject(value).l
     json.keys().asSequence().associate { it.toInt() to json.getInt(it) }.toSortedMap()
 }
 private fun encodeWeekdays(values: Set<DayOfWeek>) = values.fold(0) { mask, day -> mask or (1 shl (day.value - 1)) }
-private fun decodeWeekdays(mask: Int) = DayOfWeek.entries.filter { mask and (1 shl (it.value - 1)) != 0 }.toSet()
+private fun decodeWeekdays(mask: Int) = DayOfWeek.values().filter { mask and (1 shl (it.value - 1)) != 0 }.toSet()

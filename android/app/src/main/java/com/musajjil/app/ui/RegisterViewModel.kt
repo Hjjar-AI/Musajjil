@@ -1,7 +1,6 @@
 package com.musajjil.app.ui
 
 import android.util.Log
-import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -21,7 +20,7 @@ class RegisterViewModel(private val repository: RegisterRepository) : ViewModel(
     val data = repository.data.catch { error ->
         Log.e("Musajjil", "Could not open local register", error)
         messages.send(R.string.load_failed)
-        emit(RegisterData(loading = false))
+        emit(RegisterData(loading = false, loadFailed = true))
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), RegisterData())
 
     fun saveEmployee(value: Employee, onSaved: () -> Unit) = perform(onSaved) { repository.saveEmployee(value) }

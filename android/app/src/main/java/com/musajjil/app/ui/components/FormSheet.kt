@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -29,7 +30,7 @@ fun FormSheet(title: String, onDismiss: () -> Unit, onSave: (() -> Unit)? = null
                 Text(title, Modifier.weight(1f), style = MaterialTheme.typography.titleLarge)
                 IconButton(onClick = onDismiss, enabled = !busy) { Icon(Icons.Outlined.Close, stringResource(R.string.close_form)) }
             }
-            content()
+            CompositionLocalProvider(LocalFormEnabled provides !busy) { content() }
             if (onSave != null) {
                 Button(onClick = onSave, enabled = saveEnabled && !busy, modifier = Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.medium) {
                     if (busy) CircularProgressIndicator(Modifier.size(space.large), strokeWidth = space.tiny / 2)

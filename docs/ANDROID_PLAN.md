@@ -3,8 +3,9 @@
 Planning baseline: 2026-11-01.
 
 This is a self-contained Android specification based on the user's decisions.
-It describes the planned product; no Android application has been implemented
-yet. The project has no dependency on another application, its source code,
+It describes the planned product. A native Android foundation now exists in
+[`android/`](../android/README.md); that README distinguishes implemented features
+from pending work. The project has no dependency on another application, its source code,
 database, or migration process. Routine Excel/CSV exchange remains in scope.
 
 Screen design: [Android screen flow](ANDROID_SCREEN_FLOW.md).

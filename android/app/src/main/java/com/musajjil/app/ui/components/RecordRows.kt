@@ -14,6 +14,15 @@ import com.musajjil.app.R
 import com.musajjil.app.domain.*
 import com.musajjil.app.ui.theme.LocalAppDimensions
 
+/** Include identifiers so employees with the same name can still be distinguished. */
+@Composable
+fun employeeChoices(employees: List<Employee>): List<ChoiceOption> = employees.map { employee ->
+    val identifier = employee.number.ifBlank { employee.nationalId }.takeIf(String::isNotBlank)
+    val description = listOfNotNull(employee.name, identifier?.let { stringResource(R.string.employee_number_value, it) },
+        employee.department.takeIf(String::isNotBlank)).joinToString(" · ")
+    ChoiceOption(employee.id, description)
+}
+
 @Composable
 fun EmployeeRow(employee: Employee, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val space = LocalAppDimensions.current

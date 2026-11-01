@@ -25,7 +25,7 @@ fun HoursForm(data: RegisterData, initialEmployee: String?, busy: Boolean, onDis
     FormSheet(stringResource(R.string.record_hours), onDismiss,
         onSave = { if (data.hours.any { it.employeeId == employeeId && it.date == date }) showDuplicate = true else onSave(candidate()) },
         busy = busy, saveEnabled = valid) {
-        AppChoiceField(data.employees.filterNot { it.archived }.map { ChoiceOption(it.id, it.name) }, employeeId,
+        AppChoiceField(employeeChoices(data.employees.filterNot { it.archived }), employeeId,
             { employeeId = it }, stringResource(R.string.employee))
         AppDateField(dateText, { dateText = it }, stringResource(R.string.entry_date),
             error = if (dateText.isNotBlank() && date == null) stringResource(R.string.invalid_date) else null)

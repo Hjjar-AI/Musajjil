@@ -97,6 +97,7 @@
     <string name="date_range">%1$s — %2$s</string>
     <string name="employee_number_value">رقم %1$s</string>
     <string name="conversion_rule">كل %1$d ساعات تُحسب يوماً</string>
+    <string name="current_conversion_rule">القاعدة الحالية: كل %1$d ساعات تُحسب يوماً</string>
     <string name="conversion_explanation">الأيام المحولة مستقلة. تغيير القاعدة يؤثر في ساعات السنة الحالية غير المحولة، ويحافظ على التحويلات السابقة.</string>
     <string name="recorded_hours">الساعات المسجلة</string>
     <string name="converted_days">الأيام المحولة</string>
@@ -129,6 +130,9 @@
     <string name="loading">جارٍ فتح السجل…</string>
     <string name="go_back">رجوع</string>
     <string name="close_form">إغلاق النموذج</string>
+    <string name="none">لا يوجد</string>
+    <string name="enabled">مفعّل</string>
+    <string name="disabled">غير مفعّل</string>
     <string-array name="weekdays_sunday_first">
         <item>الأحد</item><item>الاثنين</item><item>الثلاثاء</item><item>الأربعاء</item>
         <item>الخميس</item><item>الجمعة</item><item>السبت</item>

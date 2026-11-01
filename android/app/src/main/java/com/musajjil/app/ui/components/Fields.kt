@@ -19,6 +19,8 @@ import com.musajjil.app.domain.DateText
 import java.time.LocalDate
 import java.util.Calendar
 
+val LocalFormEnabled = staticCompositionLocalOf { true }
+
 @Composable
 fun AppTextField(
     value: String,
@@ -32,7 +34,7 @@ fun AppTextField(
     trailingIcon: (@Composable () -> Unit)? = null,
 ) {
     val supporting = error ?: hint
-    OutlinedTextField(value, onValueChange, modifier.fillMaxWidth(), label = { Text(label) },
+    OutlinedTextField(value, onValueChange, modifier.fillMaxWidth(), enabled = LocalFormEnabled.current, label = { Text(label) },
         singleLine = singleLine, minLines = if (singleLine) 1 else 3, isError = error != null,
         supportingText = if (supporting != null) ({ Text(supporting) }) else null,
         trailingIcon = trailingIcon, shape = MaterialTheme.shapes.medium,
@@ -45,7 +47,8 @@ fun AppDateField(value: String, onValueChange: (String) -> Unit, label: String, 
     AppTextField(value, onValueChange, label, error = error,
         hint = if (optional) stringResource(R.string.optional) else stringResource(R.string.date_hint),
         trailingIcon = {
-            IconButton(onClick = { showDatePicker(context, DateText.parse(value) ?: LocalDate.now()) { onValueChange(DateText.format(it)) } }) {
+            IconButton(enabled = LocalFormEnabled.current,
+                onClick = { showDatePicker(context, DateText.parse(value) ?: LocalDate.now()) { onValueChange(DateText.format(it)) } }) {
                 Icon(Icons.Outlined.CalendarMonth, stringResource(R.string.choose_date))
             }
         })
@@ -64,9 +67,10 @@ data class ChoiceOption(val key: String, val label: String)
 @Composable
 fun AppChoiceField(options: List<ChoiceOption>, selectedKey: String?, onSelected: (String) -> Unit, label: String, modifier: Modifier = Modifier) {
     var expanded by remember { mutableStateOf(false) }
-    ExposedDropdownMenuBox(expanded, { expanded = !expanded }, modifier.fillMaxWidth()) {
+    val enabled = LocalFormEnabled.current
+    ExposedDropdownMenuBox(expanded, { if (enabled) expanded = !expanded }, modifier.fillMaxWidth()) {
         OutlinedTextField(options.firstOrNull { it.key == selectedKey }?.label.orEmpty(), {},
-            Modifier.menuAnchor().fillMaxWidth(), readOnly = true, label = { Text(label) },
+            Modifier.menuAnchor().fillMaxWidth(), readOnly = true, enabled = enabled, label = { Text(label) },
             shape = MaterialTheme.shapes.medium,
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) })
         ExposedDropdownMenu(expanded, { expanded = false }, modifier = Modifier.heightIn(max = 320.dp)) {

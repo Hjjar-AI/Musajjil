@@ -61,4 +61,5 @@ data class RegisterData(
     val threshold: Int = 8,
     val leavePolicy: LeavePolicy = LeavePolicy(),
     val loading: Boolean = true,
+    val loadFailed: Boolean = false,
 )

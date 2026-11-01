@@ -45,7 +45,7 @@ fun LeaveScreen(data: RegisterData, today: LocalDate, onAddLeave: () -> Unit, on
                 DetailValue(stringResource(R.string.converted_days), data.conversions.filter { it.year == year }.sumOf { it.days }.toString())
                 DetailValue(stringResource(if (year == today.year) R.string.pending_hours else R.string.historical_unconverted),
                     hours.sumOf { (it.hours - it.consumedHours).toLong() }.toString())
-                Text(stringResource(R.string.conversion_rule, data.threshold), color = MaterialTheme.colorScheme.primary,
+                Text(stringResource(R.string.current_conversion_rule, data.threshold), color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodyMedium)
             } }
             if (hours.isEmpty()) item { EmptyState(stringResource(R.string.no_hours), stringResource(R.string.no_hours_body), Icons.Outlined.Schedule) }
