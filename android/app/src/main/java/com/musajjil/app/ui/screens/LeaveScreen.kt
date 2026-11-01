@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.EventNote
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -60,7 +61,7 @@ fun LeaveScreen(data: RegisterData, today: LocalDate, onAddLeave: () -> Unit, on
             } }
         } else {
             item { SectionCard { DetailValue(stringResource(R.string.recorded_days), leaves.sumOf { (it.allocations[year] ?: 0).toLong() }.toString()) } }
-            if (leaves.isEmpty()) item { EmptyState(stringResource(R.string.no_leave), stringResource(R.string.no_leave_body), Icons.Outlined.EventNote) }
+            if (leaves.isEmpty()) item { EmptyState(stringResource(R.string.no_leave), stringResource(R.string.no_leave_body), Icons.AutoMirrored.Outlined.EventNote) }
             items(leaves, key = { it.id }) { leave ->
                 SectionCard { DayLeaveRow(leave.copy(days = leave.allocations.getValue(year)), employeeNames[leave.employeeId].orEmpty()) { onEditLeave(leave) } }
             }

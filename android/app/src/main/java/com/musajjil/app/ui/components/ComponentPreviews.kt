@@ -2,7 +2,7 @@ package com.musajjil.app.ui.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.EventNote
+import androidx.compose.material.icons.automirrored.outlined.EventNote
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -23,7 +23,7 @@ private fun DarkComponents() = ComponentCatalog(true)
 
 @Composable
 private fun ComponentCatalog(dark: Boolean) {
-    MusajjilTheme(dark = dark) {
+    MusajjilTheme(darkTheme = dark) {
         val space = LocalAppDimensions.current
         Surface(color = MaterialTheme.colorScheme.background) {
             Column(Modifier.padding(space.page), verticalArrangement = Arrangement.spacedBy(space.large)) {
@@ -32,8 +32,8 @@ private fun ComponentCatalog(dark: Boolean) {
                     EmployeeRow(Employee("preview", "موظف تجريبي", "0012", department = "الإدارة"), {})
                 }
                 AppTextField("", {}, "الاسم", hint = "اختياري")
-                PrimaryAction("تسجيل إجازة", Icons.Outlined.EventNote, {}, Modifier.fillMaxWidth())
-                SummaryTile("24", "أيام الإجازة المسجلة", Icons.Outlined.EventNote)
+                PrimaryAction("تسجيل إجازة", Icons.AutoMirrored.Outlined.EventNote, {}, Modifier.fillMaxWidth())
+                SummaryTile("24", "أيام الإجازة المسجلة", Icons.AutoMirrored.Outlined.EventNote)
             }
         }
     }

@@ -55,6 +55,12 @@ APK updates. Unit tests cover date validation, exclusions, annual allocations,
 hour remainders, threshold changes and year separation. Device verification is
 separate from these JVM tests and the build/lint checks.
 
+Verified on 2026-11-01: debug APK assembled, signature verified, all six JVM tests
+passed, and lint completed with zero errors. Its 14 remaining warnings are SDK
+target and newer-version notices for the deliberately pinned toolchain and
+libraries. No device or emulator was available, so visual interaction and
+database behavior on an actual Android device still need verification.
+
 ## Customization map
 
 | Change | Location |
@@ -63,6 +69,7 @@ separate from these JVM tests and the build/lint checks.
 | Font sizes and line heights | `ui/theme/Type.kt` |
 | Shared spacing and maximum content width | `ui/theme/Dimensions.kt` |
 | Shapes, RTL and theme composition | `ui/theme/Theme.kt` |
+| Native date-picker accent/theme | `app/src/main/res/values/themes.xml` and `values-night/themes.xml` |
 | Arabic labels | `app/src/main/res/values/strings.xml` |
 | Cards, actions, empty states, summaries | `ui/components/Surfaces.kt` |
 | Text, date and dropdown controls | `ui/components/Fields.kt` |

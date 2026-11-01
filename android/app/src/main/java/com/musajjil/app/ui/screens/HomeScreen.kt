@@ -3,6 +3,7 @@ package com.musajjil.app.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.EventNote
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -58,7 +59,7 @@ fun HomeScreen(data: RegisterData, today: LocalDate, onRecordLeave: () -> Unit, 
         }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(space.medium)) {
-                SummaryTile(days.toString(), stringResource(R.string.recorded_days), Icons.Outlined.EventNote, Modifier.weight(1f))
+                SummaryTile(days.toString(), stringResource(R.string.recorded_days), Icons.AutoMirrored.Outlined.EventNote, Modifier.weight(1f))
                 SummaryTile(pending.toString(), stringResource(R.string.pending_hours), Icons.Outlined.Schedule, Modifier.weight(1f))
             }
         }
@@ -66,7 +67,7 @@ fun HomeScreen(data: RegisterData, today: LocalDate, onRecordLeave: () -> Unit, 
             SectionCard(title = stringResource(R.string.recent_leave), action = {
                 if (data.leaves.isNotEmpty()) TextButton(onAllLeaves) { Text(stringResource(R.string.view_all)) }
             }) {
-                if (data.leaves.isEmpty()) EmptyState(stringResource(R.string.no_leave), stringResource(R.string.no_leave_body), Icons.Outlined.EventNote)
+                if (data.leaves.isEmpty()) EmptyState(stringResource(R.string.no_leave), stringResource(R.string.no_leave_body), Icons.AutoMirrored.Outlined.EventNote)
                 else data.leaves.take(3).forEachIndexed { index, leave ->
                     if (index > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     DayLeaveRow(leave, employeeNames[leave.employeeId].orEmpty()) { onEditLeave(leave) }

@@ -3,6 +3,7 @@ package com.musajjil.app.ui
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.EventNote
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -27,10 +28,10 @@ import java.time.LocalDate
 import kotlinx.coroutines.delay
 
 /** Navigation and persistence are composed here; screens can be previewed without a database. */
-private enum class Destination(@StringRes val label: Int, val icon: ImageVector) {
+private enum class Destination(@param:StringRes val label: Int, val icon: ImageVector) {
     Home(R.string.home, Icons.Outlined.Home),
     Employees(R.string.employees, Icons.Outlined.PeopleAlt),
-    Leave(R.string.leave, Icons.Outlined.EventNote),
+    Leave(R.string.leave, Icons.AutoMirrored.Outlined.EventNote),
     Calendar(R.string.calendar, Icons.Outlined.CalendarMonth),
     More(R.string.more, Icons.Outlined.MoreHoriz),
 }

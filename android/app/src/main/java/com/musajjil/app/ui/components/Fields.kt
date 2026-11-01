@@ -70,7 +70,8 @@ fun AppChoiceField(options: List<ChoiceOption>, selectedKey: String?, onSelected
     val enabled = LocalFormEnabled.current
     ExposedDropdownMenuBox(expanded, { if (enabled) expanded = !expanded }, modifier.fillMaxWidth()) {
         OutlinedTextField(options.firstOrNull { it.key == selectedKey }?.label.orEmpty(), {},
-            Modifier.menuAnchor().fillMaxWidth(), readOnly = true, enabled = enabled, label = { Text(label) },
+            Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = enabled).fillMaxWidth(),
+            readOnly = true, enabled = enabled, label = { Text(label) },
             shape = MaterialTheme.shapes.medium,
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) })
         ExposedDropdownMenu(expanded, { expanded = false }, modifier = Modifier.heightIn(max = 320.dp)) {

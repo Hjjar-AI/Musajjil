@@ -13,7 +13,7 @@ import java.util.UUID
 
 enum class EmployeeField { Name, Number, NationalId, Department, JobTitle, Phone, EmploymentStart }
 
-data class EmployeeFieldSpec(val key: EmployeeField, @StringRes val label: Int,
+data class EmployeeFieldSpec(val key: EmployeeField, @param:StringRes val label: Int,
     val required: Boolean = false, val keyboard: KeyboardType = KeyboardType.Text, val date: Boolean = false)
 
 /** Initial form order, labels and input behavior are defined in one place. */
