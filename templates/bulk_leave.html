@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-people-plus ms-1"></i>تسجيل إجازة جماعية</h2>
+<div class="card mb-4">
+    <div class="card__header bg-primary text-white">
+        <i class="bi bi-calendar-check"></i> إعدادات الإجازة الجماعية
+    </div>
+    <div class="card__body">
+        <form method="POST" class="row g-3">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="col-md-6">
+                <label class="form-label">تصفية الموظفين حسب الوسوم</label>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for tag in tags %}
+                    <div class="form-check"><input class="form-check-input" type="checkbox" name="tags" value="{{ tag.id }}" id="tag{{ tag.id }}"><label class="form-check-label" for="tag{{ tag.id }}">{{ tag.name }}</label></div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">أو حسب التصنيف</label>
+                <select class="form-select" name="classification">
+                    <option value="">كل التصنيفات</option>
+                    {% for c in classifications %}
+                    <option value="{{ c.id }}">{{ c.name }}</option>
+                    {% endfor %}
+                </select>
+                <small class="text-muted">إذا تم اختيار وسم وتصنيف معاً، يُطبَّق كلاهما (AND).</small>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">نوع الإجازة</label>
+                <select class="form-select" name="vacation_type_id" required>
+                    <option value="">اختر النوع</option>
+                    {% for vt in vac_types %}
+                    <option value="{{ vt.id }}">{{ vt.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">تاريخ البداية</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                    <input type="text" class="form-control date-picker" name="start_date" required placeholder="يوم/شهر/سنة">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">تاريخ النهاية</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                    <input type="text" class="form-control date-picker" name="end_date" placeholder="يوم/شهر/سنة">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">عدد الأيام</label>
+                <input type="number" step="0.5" class="form-control" name="days_taken" placeholder="اختياري">
+            </div>
+            <div class="col-12">
+                <label class="form-label">ملاحظات</label>
+                <textarea class="form-control" name="notes" rows="2"></textarea>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-send-check ms-1"></i>تسجيل للجميع</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

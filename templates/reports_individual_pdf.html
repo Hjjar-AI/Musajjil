@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="utf-8">
+    <title>تقرير موظف</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        body {
+            font-family: 'DejaVu Sans', 'Segoe UI', Tahoma, Arial, sans-serif;
+            direction: rtl;
+            line-height: 1.5;
+            color: #1f2937;
+            background: white;
+            font-size: 12pt;
+        }
+        h1, h2, h3, h4 {
+            color: #1e3a5f;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+        h1 {
+            text-align: center;
+            font-size: 20pt;
+            border-bottom: 2px solid #1e3a5f;
+            padding-bottom: 10px;
+        }
+        h2 {
+            font-size: 16pt;
+            border-right: 4px solid #1e3a5f;
+            padding-right: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #cbd5e1;
+            padding: 8px 10px;
+            text-align: right;
+            vertical-align: top;
+        }
+        th {
+            background-color: #1e3a5f;
+            color: white;
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 9pt;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>تقرير الموظف: {{ emp_data.get('الاسم الأول', '') }} {{ emp_data.get('الكنية', '') }}</h1>
+
+    <h2>البيانات الأساسية</h2>
+    <table>
+        {% for title, val in emp_data.items() %}
+        <tr>
+            <th style="width: 30%">{{ title }}</th>
+            <td style="width: 70%">{{ val }}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <th>التصنيف</th>
+            <td>{{ emp_data.get('تصنيف', '') }}</td>
+        </tr>
+        <tr>
+            <th>القسم</th>
+            <td>{{ emp_data.get('القسم', '') }}</td>
+        </tr>
+    </table>
+
+    <!-- Balances table removed -->
+
+    {% if include_previous and yearly_breakdown %}
+    <h2>إجمالي الإجازات المستهلكة حسب السنة</h2>
+    {% for year, year_data in yearly_breakdown.items()|reverse %}
+    <h3>سنة {{ year }}</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>نوع الإجازة</th>
+                <th>إجمالي الأيام</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for vt in year_data %}
+            {% if vt.total > 0 %}
+            <tr>
+                <td>{{ vt.type }}</td>
+                <td>{{ vt.total }}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endfor %}
+    {% endif %}
+
+    <h2>سجل الإجازات</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>النوع</th>
+                <th>من</th>
+                <th>إلى</th>
+                <th>الأيام</th>
+                <th>ملاحظات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for l in leave_log %}
+            <tr>
+                <td>{{ l.vt_name }}</td>
+                <td>{{ l.start_date | arabic_date }}</td>
+                <td>{{ l.end_date | arabic_date }}</td>
+                <td>{{ l.days_taken }}</td>
+                <td>{{ l.notes or '' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        تم إنشاء التقرير بواسطة نظام إدارة الموظفين<br>
+        تاريخ الإنشاء: {{ now().strftime('%d/%m/%Y %H:%M') if now else '' }}
+    </div>
+</body>
+</html>

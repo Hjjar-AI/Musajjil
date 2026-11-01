@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>تعديل معيار التقييم</h2>
+<form method="POST" class="row g-3">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="col-md-6">
+        <label class="form-label">اسم المعيار</label>
+        <input type="text" class="form-control" name="name" value="{{ crit.name }}" required>
+    </div>
+    <div class="col-12"><h5>أوصاف الدرجات (1 إلى 5)</h5></div>
+    {% for i in range(1,6) %}
+    <div class="col-md-4">
+        <label class="form-label">درجة {{ i }}</label>
+        <input type="text" class="form-control" name="desc_{{ i }}" value="{{ descriptions.get(i|string, '') }}" placeholder="وصف الدرجة {{ i }}">
+    </div>
+    {% endfor %}
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">حفظ التغييرات</button>
+        <a href="{{ url_for('eval_criteria.list') }}" class="btn btn-secondary">إلغاء</a>
+    </div>
+</form>
+{% endblock %}

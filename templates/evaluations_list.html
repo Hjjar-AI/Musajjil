@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>تقييمات الموظف ({{ class_name }})</h2>
+<a class="btn btn-primary mb-3" href="{{ url_for('evaluations.add', id=employee_id) }}">إضافة تقييم جديد</a>
+{% if eval_data %}<div class="row">{% for item in eval_data %}<div class="col-md-6 mb-4"><div class="card h-100"><div class="card__body"><h5 class="card__title">تقييم بتاريخ {{ item.evaluation.evaluation_date | arabic_date }}</h5><p class="card__text"><strong>المقيم:</strong> {{ item.evaluation.evaluator_name }}</p>{% if item.evaluation.notes %}<p class="card__text"><strong>ملاحظات:</strong> {{ item.evaluation.notes }}</p>{% endif %}<div class="text-center">{{ radar_chart_func(item.criteria, item.scores, size=250) | safe }}</div><form action="{{ url_for('evaluations.delete', id=employee_id, eval_id=item.evaluation.id) }}" class="text-center mt-2" method="POST" data-confirm-message="حذف هذا التقييم؟"><input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/><button class="btn btn-sm btn-danger" type="submit">حذف</button></form></div></div></div>{% endfor %}</div>{% else %}<div class="alert alert-info">لا توجد تقييمات بعد.</div>{% endif %}
+<a class="btn btn-secondary" href="{{ url_for('employees.detail', id=employee_id) }}">عودة</a>
+{% endblock %}

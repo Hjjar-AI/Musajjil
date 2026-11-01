@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-tags-fill ms-1"></i>إدارة الوسوم</h2>
+<div class="card mb-4">
+<div class="card__header bg-primary text-white">
+<i class="bi bi-plus-circle"></i> إضافة وسم جديد
+    </div>
+<div class="card__body">
+<form action="{{ url_for('tags.add') }}" class="row g-2 row g-3" method="POST">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+<div class="col-auto flex-grow-1"><input class="form-control" name="name" placeholder="اسم الوسم الجديد" required="" type="text"/></div>
+<div class="col-auto"><button class="btn btn-primary" type="submit"><i class="bi bi-plus-circle ms-1"></i>إضافة</button></div>
+</form>
+</div>
+</div>
+<div class="accordion" id="tagsAccordion">
+    {% for tag in tags %}
+    <div class="accordion-item">
+<h2 class="accordion-header" id="heading{{ tag.id }}">
+<button class="accordion-button {% if not loop.first %}collapsed{% endif %}" data-bs-target="#collapse{{ tag.id }}" data-bs-toggle="collapse" type="button">
+<strong><i class="bi bi-tag ms-1"></i> {{ tag.name }}</strong>
+<span class="badge bg-secondary ms-3">{{ tag.employee_count or 0 }} موظف</span>
+</button>
+</h2>
+<div class="accordion-collapse collapse {% if loop.first %}show{% endif %}" data-bs-parent="#tagsAccordion" id="collapse{{ tag.id }}">
+<div class="accordion-body">
+<div class="d-flex justify-content-between align-items-center mb-3">
+<h6>الموظفون الحاملون لهذا الوسم:</h6>
+<form action="{{ url_for('tags.delete', id=tag.id) }}" method="POST" data-confirm-message="حذف الوسم {{ tag.name }}؟">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+<button class="btn btn-sm btn-danger" type="submit"><i class="bi bi-trash"></i> حذف الوسم</button>
+</form>
+</div>
+                {% if tag.employees %}
+                <div class="table--responsive">
+<table class="table table--sm table--bordered">
+<thead class="table__header"><tr><th>الموظف</th><th>القسم</th><th>الإجراءات</th></tr></thead>
+<tbody>
+                            {% for emp in tag.employees %}
+                            <tr>
+<td><a href="{{ url_for('employees.detail', id=emp.id) }}">{{ emp.name }}</a></td>
+<td>{{ emp.department or '-' }}</td>
+<td>
+<form action="{{ url_for('tags.remove_from_employee', tag_id=tag.id, employee_id=emp.id) }}" method="POST" data-confirm-message="إزالة الوسم {{ tag.name }} من الموظف {{ emp.name }}؟">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+<button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-dash-circle"></i> إزالة</button>
+</form>
+</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+</table>
+</div>
+                {% else %}
+                <p class="text-muted">لا يوجد موظفون مرتبطون بهذا الوسم.</p>
+                {% endif %}
+                <hr/>
+<form action="{{ url_for('tags.assign_to_employee', tag_id=tag.id) }}" class="row g-2 row g-3" method="POST">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+<div class="col-md-8">
+<select class="form-select" name="employee_id" required="">
+<option value="">-- اختر موظفاً --</option>
+                            {% for emp in all_employees %}
+                            <option value="{{ emp.id }}">{{ emp.name }} ({{ emp.department or 'بدون قسم' }})</option>
+                            {% endfor %}
+                        </select>
+</div>
+<div class="col-md-4">
+<button class="btn btn-outline-primary w-100" type="submit"><i class="bi bi-plus-circle"></i> إضافة إلى هذا الموظف</button>
+</div>
+</form>
+</div>
+</div>
+</div>
+    {% else %}
+    <div class="alert alert-info">لا توجد وسوم. أضف وسمك الأول!</div>
+    {% endfor %}
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-pencil-square"></i> تعديل جماعي للإجازات</h2>
+<div class="card">
+    <div class="card__header bg-primary text-white">
+        <i class="bi bi-calendar-check"></i> تعديل {{ leave_ids|length }} إجازة
+    </div>
+    <div class="card__body">
+        <form method="POST" action="{{ url_for('employees.bulk_leave_edit_apply') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {% for lid in leave_ids %}
+            <input type="hidden" name="leave_ids" value="{{ lid }}">
+            {% endfor %}
+            <div class="mb-3">
+                <label class="form-label">نوع الإجازة الجديد (اختياري)</label>
+                <select class="form-select" name="vacation_type_id">
+                    <option value="">-- لا تغيير --</option>
+                    {% for vt in vac_types %}
+                    <option value="{{ vt.id }}" {% if first and first.vacation_type_id == vt.id %}selected{% endif %}>{{ vt.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">تاريخ البداية الجديد (اختياري)</label>
+                <input type="date" class="form-control" name="start_date" value="{{ first.start_date if first else '' }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">تاريخ النهاية الجديد (اختياري)</label>
+                <input type="date" class="form-control" name="end_date" value="{{ first.end_date if first else '' }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">ملاحظات جديدة</label>
+                <textarea class="form-control" name="notes" rows="2">{{ first.notes if first else '' }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">تطبيق التغييرات</button>
+            <a href="{{ url_for('employees.list') }}" class="btn btn-secondary">إلغاء</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

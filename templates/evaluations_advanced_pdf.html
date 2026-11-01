@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head><meta charset="utf-8"/><title>تقييم متقدم</title><style>body{font-family:'Segoe UI',Tahoma;padding:20px;direction:rtl;}table{width:100%;border-collapse:collapse;margin-bottom:20px;}th,td{border:1px solid #ddd;padding:8px;text-align:right;}th{background-color:#1e3a5f;color:white;}</style></head>
+<body><h2>تقييم متقدم – {{ tool.name }}</h2>
+<table><tr><th>الموظف</th><td>{{ eval.employee_name }}</td></tr>
+<tr><th>الأداة</th><td>{{ tool.name }}</td></tr>
+<tr><th>المقيم</th><td>{{ eval.evaluator_name }}</td></tr>
+<tr><th>التاريخ</th><td>{{ eval.evaluation_date }}</td></tr>
+<tr><th>المرحلة</th><td>{{ eval.developmental_stage }}</td></tr></table>
+<h4>الدرجات</h4>
+<table><thead class="table__header"><tr><th>المعيار</th><th>الدرجة</th><th>Basic</th><th>Proficient</th><th>Advanced</th></tr></thead>
+<tbody>{% for c in criteria %}<tr><td>{{ c.name }}</td><td>{{ c.score if c.score is not none else '-' }}</td><td><small>{{ c.desc_basic or '—' }}</small></td><td><small>{{ c.desc_proficient or '—' }}</small></td><td><small>{{ c.desc_advanced or '—' }}</small></td></tr>{% endfor %}</tbody>
+</table>
+<h4>ملاحظات</h4>
+<p><strong>ما تم إنجازه بشكل جيد:</strong> {{ eval.what_done_well or 'لا يوجد' }}</p>
+<p><strong>اقتراحات للتطوير:</strong> {{ eval.suggestions or 'لا يوجد' }}</p>
+<p><strong>الإجراءات المتفق عليها:</strong> {{ eval.agreed_actions or 'لا يوجد' }}</p>
+</body></html>

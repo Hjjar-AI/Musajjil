@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{% if employee %}تعديل بيانات الموظف{% else %}إضافة موظف جديد{% endif %}</h2>
+<form method="POST" class="employee-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    
+    {% set col = {} %}
+    {% for f in fields %}
+        {% set _ = col.update({f.original_title: f.column_name}) %}
+    {% endfor %}
+
+    <div class="accordion" id="employeeFormAccordion">
+        <!-- القسم الأول: المعلومات الأساسية -->
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#basicInfo" aria-expanded="true" aria-controls="basicInfo">
+                    <i class="bi bi-person-badge ms-2"></i> المعلومات الأساسية
+                </button>
+            </h2>
+            <div id="basicInfo" class="accordion-collapse collapse show" data-bs-parent="#employeeFormAccordion">
+                <div class="accordion-body">
+                    <div class="employee-form__grid">
+                        <div class="employee-form__field">
+                            <label class="form-label">الرقم الوظيفي</label>
+                            <input type="text" class="form-control" name="{{ col['الرقم الوظيفي'] }}" value="{{ employee[col['الرقم الوظيفي']] if employee else '' }}">
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">الاسم الأول</label>
+                            <input type="text" class="form-control" name="{{ col['الاسم الأول'] }}" value="{{ employee[col['الاسم الأول']] if employee else '' }}">
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">الكنية</label>
+                            <input type="text" class="form-control" name="{{ col['الكنية'] }}" value="{{ employee[col['الكنية']] if employee else '' }}">
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">اسم الأب</label>
+                            <input type="text" class="form-control" name="{{ col['اسم الأب'] }}" value="{{ employee[col['اسم الأب']] if employee else '' }}">
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">اسم الأم وكنيتها</label>
+                            <input type="text" class="form-control" name="{{ col['اسم الأم وكنيتها'] }}" value="{{ employee[col['اسم الأم وكنيتها']] if employee else '' }}">
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">مكان الولادة</label>
+                            <input type="text" class="form-control" name="{{ col['مكان الولادة'] }}" value="{{ employee[col['مكان الولادة']] if employee else '' }}">
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">تاريخ الولادة</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                                <input type="text" class="form-control date-picker" name="{{ col['تاريخ الولادة'] }}" value="{{ employee[col['تاريخ الولادة']] if employee else '' }}" placeholder="يوم/شهر/سنة">
+                            </div>
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">الجنس</label>
+                            <select class="form-select" name="{{ col['الجنس'] }}">
+                                <option value="">-- اختر --</option>
+                                <option value="ذكر" {% if employee and employee[col['الجنس']] == 'ذكر' %}selected{% endif %}>ذكر</option>
+                                <option value="أنثى" {% if employee and employee[col['الجنس']] == 'أنثى' %}selected{% endif %}>أنثى</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- القسم الثاني: تفاصيل إضافية -->
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#extraInfo" aria-expanded="false" aria-controls="extraInfo">
+                    <i class="bi bi-info-circle ms-2"></i> تفاصيل إضافية
+                </button>
+            </h2>
+            <div id="extraInfo" class="accordion-collapse collapse" data-bs-parent="#employeeFormAccordion">
+                <div class="accordion-body">
+                    <div class="employee-form__grid">
+                        <div class="employee-form__field">
+                            <label class="form-label">الجنسية</label>
+                            <input type="text" class="form-control" name="{{ col['الجنسية'] }}" value="{{ employee[col['الجنسية']] if employee else '' }}">
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">لديه إعاقة</label>
+                            <select class="form-select" name="{{ col['لديه إعاقة'] }}">
+                                <option value="">-- اختر --</option>
+                                <option value="لا" {% if employee and employee[col['لديه إعاقة']] == 'لا' %}selected{% endif %}>لا</option>
+                                <option value="نعم" {% if employee and employee[col['لديه إعاقة']] == 'نعم' %}selected{% endif %}>نعم</option>
+                            </select>
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">نوع الإعاقة</label>
+                            <input type="text" class="form-control" name="{{ col['نوع الإعاقة'] }}" value="{{ employee[col['نوع الإعاقة']] if employee else '' }}">
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">مكان السكن الحالي</label>
+                            <input type="text" class="form-control" name="{{ col['مكان السكن الحالي'] }}" value="{{ employee[col['مكان السكن الحالي']] if employee else '' }}">
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">زمرة الدم</label>
+                            <select class="form-select" name="{{ col['زمرة الدم'] }}">
+                                <option value="">-- اختر --</option>
+                                {% for b in ['A+','A-','B+','B-','AB+','AB-','O+','O-'] %}
+                                <option value="{{ b }}" {% if employee and employee[col['زمرة الدم']] == b %}selected{% endif %}>{{ b }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">الحالة الاجتماعية</label>
+                            <select class="form-select" name="{{ col['الحالة الاجتماعية'] }}">
+                                <option value="">-- اختر --</option>
+                                {% set gender = employee[col['الجنس']] if employee else '' %}
+                                {% if gender == 'أنثى' %}
+                                <option value="عزباء" {% if employee and employee[col['الحالة الاجتماعية']] == 'عزباء' %}selected{% endif %}>عزباء</option>
+                                <option value="متزوجة" {% if employee and employee[col['الحالة الاجتماعية']] == 'متزوجة' %}selected{% endif %}>متزوجة</option>
+                                <option value="مطلقة" {% if employee and employee[col['الحالة الاجتماعية']] == 'مطلقة' %}selected{% endif %}>مطلقة</option>
+                                <option value="أرملة" {% if employee and employee[col['الحالة الاجتماعية']] == 'أرملة' %}selected{% endif %}>أرملة</option>
+                                {% else %}
+                                <option value="أعزب" {% if employee and employee[col['الحالة الاجتماعية']] == 'أعزب' %}selected{% endif %}>أعزب</option>
+                                <option value="متزوج" {% if employee and employee[col['الحالة الاجتماعية']] == 'متزوج' %}selected{% endif %}>متزوج</option>
+                                <option value="مطلق" {% if employee and employee[col['الحالة الاجتماعية']] == 'مطلق' %}selected{% endif %}>مطلق</option>
+                                <option value="أرمل" {% if employee and employee[col['الحالة الاجتماعية']] == 'أرمل' %}selected{% endif %}>أرمل</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">الرقم الوطني</label>
+                            <input type="text" class="form-control" name="{{ col['الرقم الوطني'] }}" value="{{ employee[col['الرقم الوطني']] if employee else '' }}">
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">النفوس</label>
+                            <input type="text" class="form-control" name="{{ col['النفوس'] }}" value="{{ employee[col['النفوس']] if employee else '' }}">
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">القيد ورقمه</label>
+                            <input type="text" class="form-control" name="{{ col['القيد ورقمه'] }}" value="{{ employee[col['القيد ورقمه']] if employee else '' }}">
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">رقم الهاتف المحمول</label>
+                            <input type="text" class="form-control" name="{{ col['رقم الهاتف المحمول'] }}" value="{{ employee[col['رقم الهاتف المحمول']] if employee else '' }}">
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">تاريخ المباشرة الأخيرة</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                                <input type="text" class="form-control date-picker" name="{{ col['تاريخ المباشرة الأخيرة'] }}" value="{{ employee[col['تاريخ المباشرة الأخيرة']] if employee else '' }}" placeholder="يوم/شهر/سنة">
+                            </div>
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">الشهادة العلمية</label>
+                            <input type="text" class="form-control" name="{{ col['الشهادة العلمية'] }}" value="{{ employee[col['الشهادة العلمية']] if employee else '' }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- القسم الثالث: التفاصيل الإدارية -->
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#adminInfo" aria-expanded="false" aria-controls="adminInfo">
+                    <i class="bi bi-briefcase ms-2"></i> التفاصيل الإدارية
+                </button>
+            </h2>
+            <div id="adminInfo" class="accordion-collapse collapse" data-bs-parent="#employeeFormAccordion">
+                <div class="accordion-body">
+                    <div class="employee-form__grid">
+                        <div class="employee-form__field">
+                            <label class="form-label">حساب شام كاش</label>
+                            <input type="text" class="form-control" name="{{ col['حساب شام كاش'] }}" value="{{ employee[col['حساب شام كاش']] if employee else '' }}" maxlength="16">
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">الرقم الترتيبي في المشفى</label>
+                            <input type="text" class="form-control" name="{{ col['الرقم الترتيبي في المشفى'] }}" value="{{ employee[col['الرقم الترتيبي في المشفى']] if employee else '' }}">
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">الفئة الوظيفية</label>
+                            <input type="text" class="form-control" name="{{ col['الفئة الوظيفية'] }}" value="{{ employee[col['الفئة الوظيفية']] if employee else '' }}">
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">صفة التعيين</label>
+                            <select class="form-select" name="{{ col['صفة التعيين'] }}">
+                                <option value="">-- اختر --</option>
+                                <option value="مثبت" {% if employee and employee[col['صفة التعيين']] == 'مثبت' %}selected{% endif %}>مثبت</option>
+                                <option value="عقد" {% if employee and employee[col['صفة التعيين']] == 'عقد' %}selected{% endif %}>عقد</option>
+                                <option value="وكيل" {% if employee and employee[col['صفة التعيين']] == 'وكيل' %}selected{% endif %}>وكيل</option>
+                                <option value="مكلف" {% if employee and employee[col['صفة التعيين']] == 'مكلف' %}selected{% endif %}>مكلف</option>
+                            </select>
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">مكان العمل</label>
+                            <input type="text" class="form-control" name="{{ col['مكان العمل'] }}" value="{{ employee[col['مكان العمل']] if employee else '' }}">
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">نوع العمل المكلف به</label>
+                            <input type="text" class="form-control" name="{{ col['نوع العمل المكلف به'] }}" value="{{ employee[col['نوع العمل المكلف به']] if employee else '' }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- القسم الرابع: معلومات إضافية -->
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#otherInfo" aria-expanded="false" aria-controls="otherInfo">
+                    <i class="bi bi-gear ms-2"></i> معلومات إضافية
+                </button>
+            </h2>
+            <div id="otherInfo" class="accordion-collapse collapse" data-bs-parent="#employeeFormAccordion">
+                <div class="accordion-body">
+                    <div class="employee-form__grid">
+                        {% if 'القسم' in col %}
+                        <div class="employee-form__field">
+                            <label class="form-label">القسم</label>
+                            <select class="form-select" name="{{ col['القسم'] }}">
+                                <option value="">-- اختر --</option>
+                                {% for dept in departments_list %}
+                                <option value="{{ dept.name }}" {% if employee and employee[col['القسم']] == dept.name %}selected{% endif %}>{{ dept.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
+                        {% if class_col %}
+                        <div class="employee-form__field">
+                            <label class="form-label">التصنيف</label>
+                            <select class="form-select" name="{{ class_col }}">
+                                <option value="">-- اختر --</option>
+                                {% for c in classifications %}
+                                <option value="{{ c.name }}" {% if employee and employee[class_col] == c.name %}selected{% endif %}>{{ c.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
+                        <div class="employee-form__field">
+                            <label class="form-label">سنوات الخدمة المستهدفة</label>
+                            <input type="number" min="0" step="1" class="form-control" name="target_years" value="{{ target_years_val }}">
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">أشهر الخدمة المستهدفة</label>
+                            <input type="number" min="0" max="11" step="1" class="form-control" name="target_months" value="{{ target_months_val }}">
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">تاريخ انتهاء العقد</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                                <input type="text" class="form-control date-picker" name="contract_end_date" value="{{ employee.contract_end_date if employee else '' }}" placeholder="يوم/شهر/سنة">
+                            </div>
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">أيام الغياب غير المعوَّضة (تُطرح من الخدمة)</label>
+                            <input type="number" step="0.5" class="form-control" name="uncompensated_days" value="{{ uncompensated_days if employee else 0 }}">
+                            <small class="text-muted">أيام الغياب بدون عذر أو إجازة غير مدفوعة</small>
+                        </div>
+                        <div class="employee-form__field employee-form__field--fullwidth">
+                            <label class="form-label">الوسوم</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for tag in all_tags %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="tags" value="{{ tag.id }}" id="tag{{ tag.id }}" {% if current_tags and tag.id in current_tags %}checked{% endif %}>
+                                    <label class="form-check-label" for="tag{{ tag.id }}">{{ tag.name }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="employee-form__field">
+                            <label class="form-label">تاريخ آخر تحديث</label>
+                            <input type="text" class="form-control" value="{{ employee.last_updated if employee else '' }}" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="employee-form__actions">
+        <button type="submit" class="btn btn-primary">حفظ</button>
+        <a href="{{ url_for('employees.list') }}" class="btn btn-secondary">إلغاء</a>
+    </div>
+</form>
+{% endblock %}

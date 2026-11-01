@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-person-lines-fill ms-1"></i>تقرير موظف</h2>
+<div class="card">
+    <div class="card__body">
+        <form method="GET" action="{{ url_for('reports.individual') }}">
+            <div class="mb-3">
+                <label class="form-label">اختر الموظف</label>
+                <select class="form-select" name="employee_id" required>
+                    <option value="">-- اختر --</option>
+                    {% for emp in employees %}
+                    <option value="{{ emp.id }}">{{ emp.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" name="include_previous" value="true" id="includePrevious">
+                <label class="form-check-label" for="includePrevious">عرض تفصيل الإجازات لكل سنة سابقة</label>
+            </div>
+            <button type="submit" class="btn btn-primary">عرض التقرير</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>أنواع الإجازات</h2>
+<div class="card mb-3">
+<div class="card__header bg-primary text-white">
+<i class="bi bi-plus-circle"></i> إضافة نوع جديد
+    </div>
+<div class="card__body">
+<form action="{{ url_for('vacation_types.add') }}" class="row g-2 row g-3" method="POST">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+<div class="col-auto"><input class="form-control" name="name" placeholder="اسم النوع" required="" type="text"/></div>
+<div class="col-auto"><input class="form-control" name="hours_per_day" placeholder="ساعات اليوم" required="" step="0.5" type="number" value="8"/></div>
+<div class="col-auto"><button class="btn btn-primary" type="submit">إضافة</button></div>
+</form>
+</div>
+</div>
+<div class="table--responsive">
+<table class="table table--bordered">
+<thead class="table__header">
+    <tr><th>الاسم</th><th>ساعات اليوم</th><th>سنوي؟</th><th></th></tr>
+</thead>
+<tbody>
+    {% for vt in vtypes %}
+    <tr>
+        <form action="{{ url_for('vacation_types.edit', id=vt.id) }}" class="d-contents row g-3" method="POST">
+            <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+            <td><input class="form-control form-control-sm" name="name" required="" type="text" value="{{ vt.name }}"/></td>
+            <td><input class="form-control form-control-sm" name="hours_per_day" step="0.5" type="number" value="{{ vt.hours_per_day }}"/></td>
+            <td><select class="form-select form-select-sm" name="is_yearly"><option value="1" {% if vt.is_yearly %}selected{% endif %}>نعم</option><option value="0" {% if not vt.is_yearly %}selected{% endif %}>لا</option></select></td>
+            <td><div class="btn-group btn-group-sm"><button class="btn btn-outline-primary" title="حفظ" type="submit"><i class="bi bi-check-lg"></i></button></div></td>
+        </form>
+        <td>
+            <form action="{{ url_for('vacation_types.delete', id=vt.id) }}" method="POST" data-confirm-message="حذف نوع الإجازة {{ vt.name }}؟">
+                <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+                <button class="btn btn-sm btn-danger" type="submit"><i class="bi bi-trash"></i> حذف</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+</td>
+</div>
+{% endblock %}

@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4">معاينة العطل الديناميكية لعام {{ year }}</h2>
+<div class="table--responsive"><table class="table table--bordered"><thead class="table__header"><tr><th>التاريخ</th><th>اسم العطلة</th><th>القاعدة</th></tr></thead><tbody>{% for h in holidays %}<tr><td>{{ h.date | arabic_date }}</td><td>{{ h.name }}</td><td>رقم القاعدة {{ h.rule_id }}</td></tr>{% else %}<tr><td colspan="3" class="text-center">لا توجد عطل ديناميكية مفعلة لهذه السنة</td></tr>{% endfor %}</tbody></table></div>
+<a href="{{ url_for('smart_holidays.list_rules') }}" class="btn btn-secondary">العودة</a>
+{% endblock %}

@@ -1,0 +1,38 @@
+{# templates/_macros-tables.html #}
+{% macro employee_table(employees, fields, sort_by, order, tags_query='') %}
+<div class="table--responsive">
+<table class="table table--striped table--hover">
+<thead class="table-light table__header">
+<tr>
+<th><a href="?sort=id&amp;order={{ 'desc' if sort_by=='id' and order=='asc' else 'asc' }}{% if tags_query %}&amp;{{ tags_query }}{% endif %}">#</a></th>
+                {% for f in fields %}
+                <th><a href="?sort={{ f.column_name }}&amp;order={{ 'desc' if sort_by==f.column_name and order=='asc' else 'asc' }}{% if tags_query %}&amp;{{ tags_query }}{% endif %}">{{ f.original_title }}</a></th>
+                {% endfor %}
+                <th><a href="?sort=service_days&amp;order={{ 'desc' if sort_by=='service_days' and order=='asc' else 'asc' }}{% if tags_query %}&amp;{{ tags_query }}{% endif %}">مدة الخدمة</a></th>
+<th>الإجراءات</th>
+</tr>
+</thead>
+<tbody>
+        {% for emp in employees %}
+        <tr>
+<td>{{ emp.id }}</td>
+            {% for f in fields %}
+            <td>{{ emp[f.column_name] or '' }}</td>
+            {% endfor %}
+            <td>{{ emp.service_days or 0 }}</td>
+            <td>
+<div class="btn-group btn-group-sm">
+<a class="btn btn-outline-primary" href="{{ url_for('employees.detail', id=emp.id) }}">تفاصيل</a>
+<a class="btn btn-outline-secondary" href="{{ url_for('employees.edit', id=emp.id) }}">تعديل</a>
+<form action="{{ url_for('employees.delete', id=emp.id) }}" class="d-inline" method="POST" onsubmit="return confirm('متأكد من الحذف؟')">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+<button class="btn btn-outline-danger" type="submit">حذف</button>
+</form>
+</div>
+</td>
+</tr>
+        {% endfor %}
+        </tbody>
+</table>
+</div>
+{% endmacro %}

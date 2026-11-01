@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-magic ms-1"></i>تعيين الأعمدة - {{ filename }}</h2>
+<div class="card mb-4">
+    <div class="card__header bg-primary text-white">
+        <i class="bi bi-table"></i> معاينة البيانات (أول 5 صفوف)
+    </div>
+    <div class="card__body">
+        <div class="table--responsive">{{ preview|safe }}</div>
+    </div>
+</div>
+<form method="POST" action="{{ url_for('employee_import.preview_import') }}" class="row g-3">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="card mb-4">
+        <div class="card__header bg-primary text-white">
+            <i class="bi bi-gear"></i> تعيين الأعمدة
+        </div>
+        <div class="card__body">
+            <div class="table--responsive">
+                <table class="table table--bordered">
+                    <thead class="table__header">
+                        <tr><th>حقل النظام</th><th>العمود في الملف</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for field in system_fields %}
+                        <tr>
+                            <td>{{ field.original }} {% if field.original == 'الرقم الوظيفي' %}<span class="text-danger">*</span>{% endif %}</td>
+                            <td>
+                                <select class="form-select" name="map_{{ field.original }}">
+                                    <option value="">-- غير محدد --</option>
+                                    {% for col in file_columns %}
+                                    <option value="{{ col }}">{{ col }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card__header bg-primary text-white">
+            <i class="bi bi-info-circle"></i> خيارات الاستيراد
+        </div>
+        <div class="card__body">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="dry_run" id="dry_run" checked>
+                <label class="form-check-label" for="dry_run">وضع التجربة (معاينة الأخطاء فقط، بدون حفظ)</label>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">معاينة البيانات والتحقق</button>
+        <a href="{{ url_for('employee_import.upload') }}" class="btn btn-secondary">عودة</a>
+    </div>
+</form>
+{% endblock %}

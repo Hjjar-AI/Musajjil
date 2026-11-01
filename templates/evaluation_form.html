@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>إضافة تقييم</h2>
+<div class="card">
+    <div class="card__header bg-primary text-white">
+        <i class="bi bi-clipboard-plus"></i> نموذج التقييم
+    </div>
+    <div class="card__body">
+        <form method="POST" class="row g-3">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="col-md-6">
+                <label class="form-label">اسم المقيّم</label>
+                <input type="text" class="form-control" name="evaluator_name" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">تاريخ التقييم</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                    <input type="text" class="form-control date-picker" name="evaluation_date" required placeholder="يوم/شهر/سنة">
+                </div>
+            </div>
+            <div class="col-12">
+                <label class="form-label">ملاحظات</label>
+                <textarea class="form-control" name="notes" rows="2"></textarea>
+            </div>
+            <h4>المعايير</h4>
+            {% for crit in criteria %}
+            <div class="col-md-6 mb-3">
+                <label class="form-label">{{ crit.name }}</label>
+                <div class="d-flex align-items-center">
+                    <input type="number" class="form-control w-100" name="score_{{ crit.id }}" min="1" max="5" step="0.1" value="1" required>
+                    <small class="text-muted me-2">{% if crit.descriptions %}1: {{ crit.descriptions['1'] if '1' in crit.descriptions else '' }} | 5: {{ crit.descriptions['5'] if '5' in crit.descriptions else '' }}{% endif %}</small>
+                </div>
+                <div class="mt-1"><small class="text-muted">1 = ضعيف، 5 = ممتاز</small></div>
+            </div>
+            {% endfor %}
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">حفظ التقييم</button>
+                <a href="{{ url_for('evaluations.list', id=employee_id) }}" class="btn btn-secondary">إلغاء</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

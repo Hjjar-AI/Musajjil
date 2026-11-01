@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-calendar-heart ms-1"></i>العطل الاستثنائية والمهام المبررة</h2>
+<div class="card mb-4">
+    <div class="card__body">
+        <form action="{{ url_for('smart_holidays.add_rule') }}" class="row g-3" method="POST" id="ruleForm">
+            <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+            <div class="col-md-3"><label class="form-label">الاسم</label><input class="form-control" name="name" required type="text"/></div>
+            <div class="col-md-2"><label class="form-label">النوع</label>
+                <select class="form-select" id="ruleType" name="rule_type">
+                    <option value="weekday">يوم أسبوعي</option>
+                    <option value="date">يوم من الشهر</option>
+                    <option value="formula">صيغة (آخر جمعة، أول إثنين...)</option>
+                </select>
+            </div>
+            <div class="col-md-3" id="ruleValueContainer">
+                <label class="form-label" id="ruleValueLabel">القيمة</label>
+                <div id="ruleValueInput"></div>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">التكرار</label>
+                <select class="form-select" name="repeat_type" id="repeatType">
+                    <option value="once">مرة واحدة (لا يتكرر)</option>
+                    <option value="weekly">أسبوعي</option>
+                    <option value="monthly">شهري</option>
+                    <option value="yearly">سنوي</option>
+                </select>
+            </div>
+            <div class="col-md-2" id="repeatIntervalDiv" style="display:none;">
+                <label class="form-label">كل (أسابيع/شهور)</label>
+                <input class="form-control" name="repeat_interval" type="number" min="1" value="1"/>
+            </div>
+            <div class="col-md-4"><label class="form-label">الأقسام المستهدفة</label>
+                <select class="form-select" multiple name="target_departments" size="3">
+                    <option value="">الكل</option>
+                    {% for dept in departments %}<option value="{{ dept }}">{{ dept }}</option>{% endfor %}
+                </select>
+                <small class="text-muted">Ctrl+نقر لتحديد عدة أقسام</small>
+            </div>
+            <div class="col-md-4"><label class="form-label">التصنيفات المستهدفة</label>
+                <select class="form-select" multiple name="target_classifications" size="3">
+                    <option value="">الكل</option>
+                    {% for cls in classifications %}<option value="{{ cls }}">{{ cls }}</option>{% endfor %}
+                </select>
+                <small class="text-muted">Ctrl+نقر لتحديد عدة تصنيفات</small>
+            </div>
+            <div class="col-md-6"><label class="form-label">الوصف</label><textarea class="form-control" name="description" rows="2"></textarea></div>
+            <div class="col-md-2"><div class="form-check mt-4"><input checked class="form-check-input" name="is_active" type="checkbox"/><label class="form-check-label">مفعل</label></div></div>
+            <div class="col-12"><button class="btn btn-primary" type="submit">إضافة قاعدة</button></div>
+        </form>
+    </div>
+</div>
+
+<h4>القواعد الحالية</h4>
+<div class="table--responsive">
+    <table class="table table--bordered">
+        <thead class="table__header">
+            <tr><th>الاسم</th><th>النوع</th><th>القيمة</th><th>التكرار</th><th>الأقسام</th><th>التصنيفات</th><th>الوصف</th><th>الحالة</th><th></th></tr>
+        </thead>
+        <tbody>
+            {% for rule in rules %}
+            <tr>
+                <td>{{ rule.name }}<\/td>
+                <td>{{ rule.rule_type }}<\/td>
+                <td>{{ rule.rule_value }}<\/td>
+                <td>
+                    {% if rule.repeat_type == 'once' %}مرة واحدة
+                    {% elif rule.repeat_type == 'weekly' %}أسبوعي (كل {{ rule.repeat_interval }} أسبوع)
+                    {% elif rule.repeat_type == 'monthly' %}شهري (كل {{ rule.repeat_interval }} شهر)
+                    {% else %}سنوي{% endif %}
+                 <\/td>
+                <td>{{ rule.target_departments or 'الكل' }}<\/td>
+                <td>{{ rule.target_classifications or 'الكل' }}<\/td>
+                <td>{{ rule.description or '' }}<\/td>
+                <td>
+                    <form action="{{ url_for('smart_holidays.toggle_rule', id=rule.id) }}" class="d-inline" method="POST">
+                        <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+                        <button class="btn btn-sm {% if rule.is_active %}btn-success{% else %}btn-secondary{% endif %}">{% if rule.is_active %}مفعل{% else %}معطل{% endif %}</button>
+                    </form>
+                 <\/td>
+                <td>
+                    <form action="{{ url_for('smart_holidays.delete_rule', id=rule.id) }}" method="POST" data-confirm-message="حذف القاعدة {{ rule.name }}؟">
+                        <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+                        <button class="btn btn-sm btn-danger" type="submit">حذف</button>
+                    </form>
+                 <\/td>
+            </tr>
+            {% else %}
+            <tr><td class="text-center text-muted" colspan="9">لا توجد قواعد. قم بإضافة قاعدة أولاً.<\/td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="mt-3"><a class="btn btn-info" href="{{ url_for('smart_holidays.preview') }}">معاينة العطل للسنة الحالية</a></div>
+
+<script>
+    const ruleType = document.getElementById('ruleType');
+    const ruleValueContainer = document.getElementById('ruleValueInput');
+    const ruleValueLabel = document.getElementById('ruleValueLabel');
+    const repeatType = document.getElementById('repeatType');
+    const repeatIntervalDiv = document.getElementById('repeatIntervalDiv');
+
+    function updateRuleValueInput() {
+        const type = ruleType.value;
+        if (type === 'weekday') {
+            ruleValueLabel.innerText = 'رقم اليوم (0=الإثنين...6=الأحد)';
+            ruleValueContainer.innerHTML = `<input class="form-control" name="rule_value" placeholder="مثال: 4" required type="number" min="0" max="6"/>`;
+        } else if (type === 'date') {
+            ruleValueLabel.innerText = 'أرقام الأيام مفصولة بفواصل (مثال: 1,15)';
+            ruleValueContainer.innerHTML = `<input class="form-control" name="rule_value" placeholder="مثال: 1,15" required type="text"/>`;
+        } else {
+            ruleValueLabel.innerText = 'اختر صيغة';
+            ruleValueContainer.innerHTML = `
+                <select class="form-select" name="rule_value" required>
+                    <option value="">-- اختر صيغة --</option>
+                    <option value="preset_last_friday">آخر جمعة من الشهر</option>
+                    <option value="preset_first_monday">أول إثنين من الشهر</option>
+                    <option value="preset_last_monday">آخر إثنين من الشهر</option>
+                    <option value="preset_first_friday">أول جمعة من الشهر</option>
+                    <option value="custom">صيغة مخصصة (متقدم)</option>
+                </select>
+                <div id="customFormulaDiv" style="display:none; margin-top:10px;">
+                    <input type="text" class="form-control" name="custom_formula" placeholder="أدخل الصيغة يدوياً (مثال: last Friday of month)" />
+                </div>
+            `;
+            const select = document.querySelector('select[name="rule_value"]');
+            const customDiv = document.getElementById('customFormulaDiv');
+            select.addEventListener('change', function() {
+                if (this.value === 'custom') {
+                    customDiv.style.display = 'block';
+                    this.removeAttribute('required');
+                } else {
+                    customDiv.style.display = 'none';
+                    this.setAttribute('required', 'required');
+                    if (customDiv.querySelector('input')) customDiv.querySelector('input').value = '';
+                }
+            });
+        }
+    }
+
+    function updateRepeatInterval() {
+        const rep = repeatType.value;
+        if (rep === 'once' || rep === 'yearly') {
+            repeatIntervalDiv.style.display = 'none';
+        } else {
+            repeatIntervalDiv.style.display = 'block';
+        }
+    }
+
+    ruleType.addEventListener('change', updateRuleValueInput);
+    repeatType.addEventListener('change', updateRepeatInterval);
+    updateRuleValueInput();
+    updateRepeatInterval();
+
+    // Handle custom formula on form submit
+    const form = document.getElementById('ruleForm');
+    form.addEventListener('submit', function(e) {
+        const type = ruleType.value;
+        if (type === 'formula') {
+            const select = document.querySelector('select[name="rule_value"]');
+            const customInput = document.querySelector('input[name="custom_formula"]');
+            if (select && select.value === 'custom' && customInput && customInput.value) {
+                // Create hidden input with the custom formula
+                const hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = 'rule_value';
+                hidden.value = customInput.value;
+                form.appendChild(hidden);
+                // Disable the select so it doesn't submit empty
+                select.disabled = true;
+            }
+        }
+    });
+</script>
+{% endblock %}

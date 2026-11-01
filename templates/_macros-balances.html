@@ -1,0 +1,25 @@
+{# templates/_macros-balances.html #}
+{% macro balances_table(balances) %}
+<div class="table--responsive">
+<table class="table table--bordered">
+<thead class="table__header">
+<tr>
+<th>نوع الإجازة</th>
+<th>الاستحقاق</th>
+<th>المستخدم</th>
+<th>المتبقي</th>
+</tr>
+</thead>
+<tbody>
+        {% for b in balances %}
+        <tr>
+<td>{{ b.type }}</td>
+<td>{{ b.entitled }}</td>
+<td>{{ b.taken }}</td>
+<td class="{% if b.balance < 0 %}text-danger fw-bold{% endif %}">{{ b.balance }}</td>
+</tr>
+        {% endfor %}
+        </tbody>
+</table>
+</div>
+{% endmacro %}

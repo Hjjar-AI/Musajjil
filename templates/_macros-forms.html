@@ -1,0 +1,59 @@
+{# templates/_macros-forms.html #}
+{% macro dynamic_form_fields(fields, employee=None) %}
+{% for f in fields %}
+    <div class="mb-3">
+<label class="form-label" for="{{ f.column_name }}">{{ f.original_title }}</label>
+<input class="form-control" id="{{ f.column_name }}" name="{{ f.column_name }}" type="text" value="{{ employee[f.column_name] if employee else '' }}"/>
+</div>
+{% endfor %}
+{% endmacro %}
+
+{% macro leave_form(vac_types, employee_id) %}
+<form class="row g-3" method="POST">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+<div class="col-md-6">
+<label class="form-label">نوع الإجازة</label>
+<select class="form-select" name="vacation_type_id" required="">
+            {% for vt in vac_types %}
+            <option value="{{ vt.id }}">{{ vt.name }}</option>
+            {% endfor %}
+        </select>
+</div>
+<div class="col-md-3">
+<label class="form-label">تاريخ البداية</label>
+<input class="form-control" name="start_date" required="" type="date"/>
+</div>
+<div class="col-md-3">
+<label class="form-label">تاريخ النهاية</label>
+<input class="form-control" name="end_date" required="" type="date"/>
+</div>
+<div class="col-md-3">
+<label class="form-label">عدد الأيام</label>
+<input class="form-control" name="days_taken" required="" step="0.5" type="number"/>
+</div>
+<div class="col-md-9">
+<label class="form-label">ملاحظات</label>
+<textarea class="form-control" name="notes" rows="2"></textarea>
+</div>
+<div class="col-12">
+<button class="btn btn-primary" type="submit">تسجيل</button>
+<a class="btn btn-secondary" href="{{ url_for('employees.detail', id=employee_id) }}">إلغاء</a>
+</div>
+</form>
+{% endmacro %}
+
+{% macro entitlements_form(vac_types, current, defaults, employee_id) %}
+<form class="row g-3" method="POST">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+    {% for vt in vac_types %}
+    <div class="col-md-6">
+<label class="form-label">{{ vt.name }} (الافتراضي: {{ defaults.get(vt.id, 0) }})</label>
+<input class="form-control" name="entitled_{{ vt.id }}" step="0.5" type="number" value="{{ current.get(vt.id, defaults.get(vt.id, 0)) }}"/>
+</div>
+    {% endfor %}
+    <div class="col-12">
+<button class="btn btn-primary" type="submit">حفظ الاستحقاقات</button>
+<a class="btn btn-secondary" href="{{ url_for('employees.detail', id=employee_id) }}">إلغاء</a>
+</div>
+</form>
+{% endmacro %}

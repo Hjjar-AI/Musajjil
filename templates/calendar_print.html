@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>تقويم الإجازات - {{ month_name }} {{ year }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.rtl.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        @media print {
+            body { background: white; }
+            .btn { display: none; }
+        }
+    </style>
+</head>
+<body class="p-4">
+    <h2>تقويم الإجازات – {{ month_name }} {{ year }}</h2>
+    <button onclick="window.print()" class="btn btn-primary mb-3">طباعة</button>
+    <div class="table--responsive">
+        <table class="table table--bordered text-center">
+            <thead class="table__header">
+                <tr><th>السبت</th><th>الأحد</th><th>الإثنين</th><th>الثلاثاء</th><th>الأربعاء</th><th>الخميس</th><th>الجمعة</th></tr>
+            </thead>
+            <tbody>
+            {% for week in cal %}
+            <tr>
+            {% for day in week %}
+                {% set is_holiday = (day != 0) and (day in holiday_dates) %}
+                {% set day_events = events.get(day, []) %}
+                <td style="height:60px; vertical-align:top; {% if is_holiday %}background-color:#ffe0b2;{% endif %}{% if day_events %}background-color:rgba(16,185,129,0.15);{% endif %}">
+                    {% if day != 0 %}
+                        <strong>{{ day }}</strong>
+                        {% if is_holiday %}<br><small>عطلة</small>{% endif %}
+                        {% for event in day_events %}
+                            <div style="font-size:0.7rem;">{{ event }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </td>
+            {% endfor %}
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

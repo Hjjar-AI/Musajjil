@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-pencil-square"></i> تعديل جماعي للموظفين</h2>
+<div class="card">
+    <div class="card__header bg-primary text-white">
+        <i class="bi bi-gear"></i> تعديل {{ employee_ids|length }} موظف
+    </div>
+    <div class="card__body">
+        <form method="POST" action="{{ url_for('employees.bulk_edit_apply') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {% for eid in employee_ids %}
+            <input type="hidden" name="employee_ids" value="{{ eid }}">
+            {% endfor %}
+            <div class="mb-3">
+                <label class="form-label">الحقل المراد تعديله</label>
+                <select class="form-select" name="field_name" id="fieldSelect">
+                    <option value="">-- اختر --</option>
+                    <option value="department">القسم</option>
+                    <option value="classification">التصنيف</option>
+                    <option value="tags">الوسوم</option>
+                </select>
+            </div>
+            <div class="mb-3" id="deptDiv" style="display:none;">
+                <label class="form-label">القسم الجديد</label>
+                <select class="form-select" name="field_value">
+                    <option value="">اختر القسم</option>
+                    {% for d in departments %}
+                    <option value="{{ d.name }}">{{ d.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3" id="classDiv" style="display:none;">
+                <label class="form-label">التصنيف الجديد</label>
+                <select class="form-select" name="field_value">
+                    <option value="">اختر التصنيف</option>
+                    {% for c in classifications %}
+                    <option value="{{ c.id }}">{{ c.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3" id="tagsDiv" style="display:none;">
+                <label class="form-label">الوسم</label>
+                <select class="form-select" name="field_value">
+                    <option value="">اختر الوسم</option>
+                    {% for t in tags %}
+                    <option value="{{ t.id }}">{{ t.name }}</option>
+                    {% endfor %}
+                </select>
+                <div class="mt-2">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="tag_action" value="add" checked>
+                        <label class="form-check-label">إضافة الوسم</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="tag_action" value="remove">
+                        <label class="form-check-label">إزالة الوسم</label>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">تطبيق التعديلات</button>
+            <a href="{{ url_for('employees.list') }}" class="btn btn-secondary">إلغاء</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

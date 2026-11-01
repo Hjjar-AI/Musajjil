@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4">معاينة وتعيين الأعمدة - {{ filename }}</h2>
+<div class="card mb-4"><div class="card__body"><h5>معاينة البيانات (أول 5 صفوف)</h5><div class="table--responsive">{{ preview|safe }}</div></div></div>
+<form action="{{ url_for('evaluations.import_do') }}" class="row g-3" method="POST">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+<div class="card mb-4"><div class="card__body"><h5>تعيين الأعمدة</h5>{% for col in expected_columns %}<div class="mb-2 row"><label class="col-sm-3 col-form-label">{{ col }}</label><div class="col-sm-9"><select class="form-select" name="col_{{ col }}"><option value="">-- غير محدد --</option>{% for actual_col in columns %}<option value="{{ actual_col }}" {% if detected[col] == actual_col %}selected{% endif %}>{{ actual_col }}</option>{% endfor %}</select></div></div>{% endfor %}</div></div>
+<div class="card mb-4"><div class="card__body"><h5>خيارات الاستيراد</h5><div class="form-check mb-2"><input class="form-check-input" id="dry_run" name="dry_run" type="checkbox"/><label class="form-check-label" for="dry_run">وضع التجربة (دون حفظ في قاعدة البيانات) – جرب أولاً</label></div></div></div>
+<button class="btn btn-success" type="submit"><i class="bi bi-check-circle"></i> تأكيد الاستيراد</button>
+<a class="btn btn-secondary" href="{{ url_for('evaluations.import_wizard') }}">إلغاء</a>
+</form>
+{% endblock %}

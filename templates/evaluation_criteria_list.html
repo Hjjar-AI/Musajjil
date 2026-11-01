@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>معايير التقييم</h2>
+<div class="card mb-3">
+    <div class="card__body">
+        <form action="{{ url_for('eval_criteria.add') }}" class="row g-2 row g-3" method="POST">
+            <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+            <div class="col-auto"><input class="form-control" name="name" placeholder="اسم المعيار" required="" type="text"/></div>
+            <div class="col-auto">
+                <select class="form-select" name="classification_id">
+                    <option value="">عام (لكل التصنيفات)</option>
+                    {% for c in classifications %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-auto"><button class="btn btn-primary" type="submit">إضافة</button></div>
+        </form>
+    </div>
+</div>
+<table class="table table--bordered">
+    <thead class="table__header">
+        <tr><th>المعيار</th><th>التصنيف</th><th>الوصف</th><th></th></tr>
+    </thead>
+    <tbody>
+        {% for crit in criteria %}
+        <tr>
+            <td>{{ crit.name }}</td>
+            <td>{{ crit.classification_name or 'عام' }}</td>
+            <td>{% if crit.descriptions %}<small>{% for key, val in crit.descriptions.items() %}<strong>{{ key }}:</strong> {{ val }}{% if not loop.last %}, {% endif %}{% endfor %}</small>{% else %}<span class="text-muted">لا يوجد</span>{% endif %}</td>
+            <td>
+                <div class="btn-group btn-group-sm">
+                    <a class="btn btn-outline-primary" href="{{ url_for('eval_criteria.edit', id=crit.id) }}"><i class="bi bi-pencil"></i> تعديل</a>
+                    <form action="{{ url_for('eval_criteria.delete', id=crit.id) }}" method="POST" data-confirm-message="حذف المعيار {{ crit.name }}؟">
+                        <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+                        <button class="btn btn-outline-danger"><i class="bi bi-trash"></i> حذف</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

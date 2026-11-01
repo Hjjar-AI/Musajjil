@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-sliders ms-1"></i>معايير أداة: {{ tool.name }}</h2>
+<div class="card mb-4"><div class="card__body"><form action="{{ url_for('evaluations.add_criterion', tool_id=tool.id) }}" class="row g-2 row g-3" method="POST">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/><div class="col-md-3"><input class="form-control" name="name" placeholder="اسم المعيار" required="" type="text"/></div><div class="col-md-1"><input class="form-control" name="display_order" placeholder="الترتيب" type="number" value="1"/></div><div class="col-md-2"><textarea class="form-control" name="desc_basic" placeholder="وصف Basic" rows="1"></textarea></div><div class="col-md-2"><textarea class="form-control" name="desc_proficient" placeholder="وصف Proficient" rows="1"></textarea></div><div class="col-md-2"><textarea class="form-control" name="desc_advanced" placeholder="وصف Advanced" rows="1"></textarea></div><div class="col-md-2 align-self-end"><button class="btn btn-primary btn-sm" type="submit"><i class="bi bi-plus-circle"></i> إضافة</button></div></form></div></div>
+<div class="table--responsive"><table class="table table--bordered"><thead class="table__header"><tr><th>الاسم</th><th>الترتيب</th><th>Basic</th><th>Proficient</th><th>Advanced</th><th></th></tr></thead><tbody>{% for c in criteria %}运转<form action="{{ url_for('evaluations.edit_criterion', id=c.id) }}" class="d-contents row g-3" method="POST">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/><td><input class="form-control form-control-sm" name="name" required="" type="text" value="{{ c.name }}"/></td><td><input class="form-control form-control-sm" name="display_order" style="width:70px" type="number" value="{{ c.display_order }}"/></td><td><textarea class="form-control form-control-sm" name="desc_basic" rows="1">{{ c.desc_basic or '' }}</textarea></td><td><textarea class="form-control form-control-sm" name="desc_proficient" rows="1">{{ c.desc_proficient or '' }}</textarea></td><td><textarea class="form-control form-control-sm" name="desc_advanced" rows="1">{{ c.desc_advanced or '' }}</textarea></td><td><button class="btn btn-sm btn-outline-primary" title="حفظ" type="submit"><i class="bi bi-check-lg"></i></button></td></form><tr>
+<form action="{{ url_for('evaluations.delete_criterion', id=c.id) }}" method="POST" data-confirm-message="حذف المعيار {{ c.name }}؟">
+    <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+    <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i> حذف</button>
+</form>
+</td>
+</tr>
+{% endfor %}</tbody></table></div>
+<a class="btn btn-secondary" href="{{ url_for('evaluations.tools') }}"><i class="bi bi-arrow-right ms-1"></i>العودة للأدوات</a>
+{% endblock %}

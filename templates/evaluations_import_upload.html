@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-upload ms-1"></i>استيراد تقييمات عامة</h2>
+<div class="card">
+    <div class="card__body">
+        <form class="row g-3" enctype="multipart/form-data" method="POST">
+            <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+            <div class="mb-3">
+                <label class="form-label">اختر التصنيف (اختياري، لتحديد المعايير)</label>
+                <select class="form-select" name="classification_id">
+                    <option value="">كل التصنيفات (معايير عامة)</option>
+                    {% for c in classifications %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">ملف Excel أو CSV</label>
+                <input accept=".xlsx,.xls,.csv" class="form-control" name="file" required="" type="file"/>
+            </div>
+            <button class="btn btn-primary" type="submit">رفع ومعاينة</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

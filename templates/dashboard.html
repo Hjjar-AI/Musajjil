@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% from '_dashboard_stat_cards.html' import stat_card %}
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-speedometer2 ms-1"></i>لوحة التحكم</h2>
+
+<!-- Responsive stat cards grid -->
+<div class="dashboard-stats">
+    {{ stat_card('موظف', emp_count, 'people-fill', 'primary', url_for('employees.list')) }}
+    {{ stat_card('وسم', tag_count, 'tags-fill', 'success', url_for('tags.list')) }}
+    {{ stat_card('تقييم', eval_count, 'clipboard-data', 'info', url_for('evaluations.general')) }}
+    {{ stat_card('آخر نسخة', last_backup, 'cloud-arrow-up-fill', 'warning', '#') }}
+    {{ stat_card('إجمالي أيام الإجازات (' + current_year|string + ')', total_leave_days_year, 'calendar-check', 'primary', url_for('export_import.export_report')) }}
+    {{ stat_card('متوسط الأيام لكل موظف نشط', avg_leave_days_active, 'calculator', 'success', '#') }}
+    {{ stat_card('موظف لديه إجازة خلال 7 أيام', upcoming_leaves, 'calendar-event', 'warning', url_for('calendar.show')) }}
+    {{ stat_card('نسبة الموظفين الذين أخذوا إجازة', pct_took_leave|string + '%', 'percent', 'info', url_for('export_import.export_report')) }}
+    {{ stat_card('أعلى قسم (' + top_dept_days|string + ' يوم)', top_dept, 'building', 'primary', url_for('employees.list', department=top_dept)) }}
+    {{ stat_card('عطلات متبقية هذا الشهر', holidays_this_month, 'flag', 'warning', url_for('holidays.list_holidays')) }}
+    {{ stat_card('الإجازات المرضية (' + current_year|string + ')', total_sick_days, 'heart-pulse', 'danger', url_for('export_import.export_report')) }}
+    {{ stat_card('موظف لم يأخذ إجازة هذا العام', no_leave_count, 'emoji-neutral', 'info', url_for('employees.list')) }}
+    {{ stat_card('معدل الغياب السنوي', absence_rate|string + '%', 'graph-up', 'warning', '#') }}
+    {% if oldest_id %}
+        {{ stat_card('أقدم موظف (' + oldest_days|string + ' يوم)', oldest_name, 'person-check', 'success', url_for('employees.detail', id=oldest_id)) }}
+    {% endif %}
+</div>
+
+{% include '_dashboard_alerts.html' %}
+
+<div class="d-flex flex-wrap gap-2 justify-content-start mt-3">
+    <a class="btn btn-outline-primary btn-sm" href="{{ url_for('export_import.export_employees') }}"><i class="bi bi-download ms-1"></i>تصدير CSV</a>
+    <a class="btn btn-outline-success btn-sm" href="{{ url_for('excel.export_employees_excel') }}"><i class="bi bi-file-earmark-excel ms-1"></i>تصدير Excel</a>
+    <a class="btn btn-outline-warning btn-sm" href="{{ url_for('excel.import_employees_excel') }}"><i class="bi bi-upload ms-1"></i>استيراد Excel</a>
+    <form class="d-inline" action="{{ url_for('maintenance.manual_backup') }}" method="POST">
+        <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+        <button class="btn btn-outline-secondary btn-sm" type="submit"><i class="bi bi-cloud-check ms-1"></i>نسخ احتياطي</button>
+    </form>
+    <form class="d-inline" action="{{ url_for('settings.import_data') }}" method="POST">
+        <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+        <button class="btn btn-outline-info btn-sm" type="submit"><i class="bi bi-file-earmark-arrow-up ms-1"></i>استيراد التصنيفات والمعايير</button>
+    </form>
+    <div class="dropdown d-inline-block">
+        <button class="btn btn-outline-purple btn-sm dropdown-toggle" data-bs-toggle="dropdown" style="background-color:#8b5cf6; color:white;" type="button">
+            <i class="bi bi-magic"></i> وضع الساحر
+        </button>
+        <ul class="dropdown-menu">
+            <li>
+                <form action="{{ url_for('wizard.start_wizard') }}" method="POST" class="dropdown-item" data-confirm-message="سيتم إضافة 10 موظفين وإجازات عشوائية. هل أنت متأكد؟">
+                    <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+                    <button class="btn w-100 text-start" type="submit">بدء الجلسة التجريبية</button>
+                </form>
+            </li>
+            <li>
+                <form action="{{ url_for('wizard.cleanup_demo') }}" method="POST" class="dropdown-item" data-confirm-message="حذف جميع البيانات التجريبية؟">
+                    <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+                    <button class="btn w-100 text-start" type="submit">تنظيف البيانات التجريبية</button>
+                </form>
+            </li>
+        </ul>
+    </div>
+</div>
+
+{% endblock %}

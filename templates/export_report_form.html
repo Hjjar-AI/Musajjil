@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>تقرير الإجازات الشهري</h2>
+<form method="GET" action="{{ url_for('export_import.export_report') }}" class="row g-2">
+    <div class="col-auto">
+        <label class="form-label">اختر الشهر</label>
+        <input type="month" name="month" class="form-control" value="{{ request.args.get('month', '') }}" required>
+    </div>
+    <div class="col-auto align-self-end">
+        <button type="submit" class="btn btn-primary">عرض (CSV)</button>
+        <a href="?month={{ request.args.get('month', '') }}&format=json" class="btn btn-outline-primary">JSON</a>
+    </div>
+</form>
+{% endblock %}

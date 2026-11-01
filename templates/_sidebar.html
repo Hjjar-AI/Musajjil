@@ -1,0 +1,117 @@
+<div class="sidebar shadow-sm" id="mainSidebar">
+    <div class="sidebar__header d-flex align-items-center justify-content-between p-3 border-bottom">
+        <h5 class="mb-0"><i class="bi bi-grid-3x3-gap-fill"></i> القائمة الرئيسية</h5>
+        <button aria-label="إغلاق" class="btn-close" id="closeSidebar" style="filter: invert(1) brightness(2);" type="button"></button>
+    </div>
+    <div class="sidebar__profile text-center p-3 border-bottom">
+        <div class="sidebar__avatar mx-auto mb-2">
+            <i class="bi bi-person-fill fs-1"></i>
+        </div>
+        <h6 class="mb-0">{{ session.get('username', 'زائر') }}</h6>
+        <small class="text-muted">
+            {% if session.get('role') == 'admin' %}مدير النظام
+            {% elif session.get('role') == 'registerar' %}مسجل
+            {% elif session.get('role') == 'supervisor' %}مشرف
+            {% else %}مستخدم{% endif %}
+        </small>
+    </div>
+    <div class="sidebar__body p-0">
+        <ul class="navbar-nav flex-column">
+            {% set role = session.get('role', 'viewer') %}
+
+            <!-- لوحة التحكم -->
+            <li class="sidebar__nav-item">
+                <a class="sidebar__nav-link" href="{{ url_for('dashboard.dashboard') }}">
+                    <i class="bi bi-speedometer2 ms-1"></i> لوحة التحكم
+                </a>
+            </li>
+
+            <!-- الموظفون والإجازات -->
+            {% if role in ('admin', 'registerar') %}
+            <li class="sidebar__nav-item dropdown">
+                <a class="sidebar__nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-people ms-1"></i> الموظفون والإجازات
+                </a>
+                <ul class="dropdown-menu">
+                    <li class="dropdown-header">الموظفون</li>
+                    <li><a class="dropdown-item" href="{{ url_for('employees.list') }}">قائمة الموظفين</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('employees.add') }}">إضافة موظف</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('employee_import.upload') }}">استيراد موظفين (Excel)</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('export_import.export_employees') }}">تصدير الموظفين</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('employees.deleted_list') }}">الموظفون المحذوفون</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li class="dropdown-header">الإجازات</li>
+                    <li><a class="dropdown-item" href="{{ url_for('employees.vacation_register') }}">تسجيل إجازة</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('bulk_leave.register') }}">تسجيل إجازة جماعية</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('calendar.show') }}">التقويم</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('calendar.team_calendar') }}">تقويم الفريق</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li class="dropdown-header">التصنيفات والوسوم</li>
+                    <li><a class="dropdown-item" href="{{ url_for('tags.list') }}">الوسوم</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('classifications.list') }}">التصنيفات</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('vacation_types.list') }}">أنواع الإجازات</a></li>
+                </ul>
+            </li>
+            {% endif %}
+
+            <!-- التقييمات -->
+            {% if role in ('admin', 'supervisor') %}
+            <li class="sidebar__nav-item dropdown">
+                <a class="sidebar__nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-clipboard-data ms-1"></i> التقييمات
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{{ url_for('evaluations.general') }}">التقييم العام</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('eval_criteria.list') }}">معايير التقييم</a></li>
+                </ul>
+            </li>
+            {% endif %}
+
+            <!-- التقارير -->
+            {% if role in ('admin', 'registerar') %}
+            <li class="sidebar__nav-item dropdown">
+                <a class="sidebar__nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-bar-chart-steps ms-1"></i> التقارير
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{{ url_for('reports.individual_select') }}">تقرير فردي (PDF/Word)</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('export_import.export_report') }}">تصدير تقرير شهري</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('export_import.export_full') }}">تصدير قاعدة بيانات كاملة</a></li>
+                </ul>
+            </li>
+            {% endif %}
+
+            <!-- المستخدمين والصلاحيات (للمدير فقط) -->
+            {% if role == 'admin' %}
+            <li class="sidebar__nav-item dropdown">
+                <a class="sidebar__nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-shield-lock ms-1"></i> المستخدمين والصلاحيات
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{{ url_for('user_manager.list_users') }}">إدارة المستخدمين</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('auth.change_password') }}">تغيير كلمة المرور</a></li>
+                </ul>
+            </li>
+            {% endif %}
+
+            <!-- الميزات المتقدمة -->
+            <li class="sidebar__nav-item dropdown">
+                <a class="sidebar__nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-stars ms-1"></i> الميزات المتقدمة
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{{ url_for('smart_holidays.list_rules') }}">العطل الاستثنائية (قواعد ذكية)</a></li>
+                    <li><a class="dropdown-item" data-bs-target="#wizardModal" data-bs-toggle="modal" href="#">وضع الساحر (بيانات تجريبية)</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('maintenance.list_backups') }}">إدارة النسخ الاحتياطية</a></li>
+                </ul>
+            </li>
+
+            <!-- الدليل والمساعدة -->
+            <li class="sidebar__nav-item">
+                <a class="sidebar__nav-link" href="{{ url_for('manual.index') }}">
+                    <i class="bi bi-book ms-1"></i> الدليل والمساعدة
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>

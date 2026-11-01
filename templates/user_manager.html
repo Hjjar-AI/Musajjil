@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-people-cog ms-1"></i>إدارة المستخدمين</h2>
+<div class="card mb-4">
+<div class="card__header bg-primary text-white">
+<i class="bi bi-person-plus"></i> إضافة مستخدم جديد
+    </div>
+<div class="card__body">
+<form action="{{ url_for('user_manager.add_user') }}" class="row g-2 row g-3" method="POST">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+<div class="col-md-3"><input class="form-control" name="username" placeholder="اسم المستخدم" required="" type="text"/></div>
+<div class="col-md-3"><input class="form-control" name="password" placeholder="كلمة المرور" required="" type="password"/></div>
+<div class="col-md-2"><select class="form-select" name="role"><option value="admin">admin</option><option value="registerar">registerar</option><option value="supervisor">supervisor</option><option value="viewer">viewer</option></select></div>
+<div class="col-md-2"><button class="btn btn-primary" type="submit"><i class="bi bi-person-plus ms-1"></i>إضافة</button></div>
+</form>
+</div>
+</div>
+<div class="table--responsive">
+<table class="table table--bordered">
+<thead class="table__header"><tr><th>المستخدم</th><th>الدور</th><th>تغيير كلمة المرور (اختياري)</th><th></th></tr></thead>
+<tbody>
+    {% for u in users %}
+    <tr>
+        <form action="{{ url_for('user_manager.edit_user', id=u.id) }}" method="POST" style="display: contents;">
+        <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+        <td><input class="form-control form-control-sm" name="username" required="" type="text" value="{{ u.username }}"/></td>
+        <td><select class="form-select form-select-sm" name="role">{% for r in ['admin','registerar','supervisor','viewer'] %}<option value="{{ r }}" {% if u.role == r %}selected{% endif %}>{{ r }}</option>{% endfor %}</select></td>
+        </form>
+        <td><div class="input-group input-group-sm"><form action="{{ url_for('user_manager.edit_user', id=u.id) }}" method="POST" style="display: flex; gap: 0.25rem;"><input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/><input class="form-control" name="password" placeholder="كلمة مرور جديدة (اختياري)" type="password"/><button class="btn btn-outline-primary" title="حفظ" type="submit"><i class="bi bi-check-lg"></i></button></form></div></td>
+        <td>
+            <form action="{{ url_for('user_manager.delete_user', id=u.id) }}" method="POST" data-confirm-message="حذف المستخدم {{ u.username }}؟">
+            <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+            <button class="btn btn-sm btn-danger" type="submit"><i class="bi bi-trash"></i> حذف</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+</table>
+</div>
+{% endblock %}

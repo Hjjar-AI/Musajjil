@@ -1,0 +1,18 @@
+{% if session.user_id and global_notifications %}
+<div class="notification-bar bg-dark text-white py-2 px-3 small">
+    <div class="container d-flex flex-wrap gap-3 justify-content-between align-items-center">
+        <span><i class="bi bi-bell-fill ms-1"></i>تنبيهات</span>
+        <div class="d-flex flex-wrap gap-3">
+            {% if global_notifications.unprocessed_year > 0 %}
+            <a href="{{ url_for('dashboard.dashboard') }}" class="text-white text-decoration-none"><i class="bi bi-exclamation-circle ms-1"></i>بداية السنة غير معالجة</a>
+            {% endif %}
+            {% if global_notifications.contract_ending > 0 %}
+            <a href="{{ url_for('employees.list') }}" class="text-white text-decoration-none"><i class="bi bi-file-earmark-text ms-1"></i>{{ global_notifications.contract_ending }} عقد ينتهي</a>
+            {% endif %}
+            {% if global_notifications.unreduced_hours > 0 %}
+            <a href="{{ url_for('employees.vacation_register') }}" class="text-white text-decoration-none"><i class="bi bi-clock ms-1"></i>{{ global_notifications.unreduced_hours }} ساعة تأخير</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}

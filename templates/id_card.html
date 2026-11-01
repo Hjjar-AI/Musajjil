@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card mx-auto" style="width: 400px;">
+    <div class="card__header bg-primary text-white text-center">
+        <h4><i class="bi bi-credit-card"></i> بطاقة تعريف موظف</h4>
+    </div>
+    <div class="card__body text-center">
+        <img src="data:image/png;base64,{{ qr_base64 }}" alt="رمز QR للموظف" style="width:120px; margin-bottom:10px;">
+        <h5>{{ name }}</h5>
+        <p><strong>الرقم الوظيفي:</strong> {{ job_num }}</p>
+        <p><strong>القسم:</strong> {{ dept }}</p>
+        <p><strong>التصنيف:</strong> {{ classification }}</p>
+    </div>
+    <div class="card-footer text-center">
+        <button onclick="window.print()" class="btn btn-secondary"><i class="bi bi-printer"></i> طباعة</button>
+    </div>
+</div>
+{% endblock %}

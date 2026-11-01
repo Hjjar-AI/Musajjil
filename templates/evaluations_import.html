@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-upload ms-1"></i>استيراد نتائج التقييمات</h2>
+<div class="card">
+    <div class="card__header bg-primary text-white">
+        <i class="bi bi-file-excel"></i> رفع الملف
+    </div>
+    <div class="card__body">
+        <form method="POST" enctype="multipart/form-data" class="row g-3">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="col-12">
+                <label class="form-label">ملف Excel (xlsx.)</label>
+                <input type="file" class="form-control" name="file" accept=".xlsx" required>
+                <div class="form-text">يجب أن يحتوي الملف على عمود "الرقم الوظيفي" وأعمدة بأسماء المعايير كما هي معرفة في النظام.</div>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-upload ms-1"></i>رفع واستيراد</button>
+            </div>
+        </form>
+        <hr>
+        <h5>تنسيق الملف المتوقع</h5>
+        <div class="table--responsive">
+            <table class="table table--sm table--bordered">
+                <thead class="table__header">
+                    <tr><th>الرقم الوظيفي</th><th>تاريخ التقييم</th><th>اسم المقيم</th><th>الأداء الوظيفي</th><th>الالتزام</th><th>...</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>1001</td><td>2026-05-27</td><td>د. أحمد</td><td>4.5</td><td>3.0</td><td>...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="text-muted">يمكنك تصدير نموذج فارغ من صفحة التقييمات لتعبئته ثم رفعه.</p>
+    </div>
+</div>
+{% endblock %}

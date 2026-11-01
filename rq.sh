@@ -1,0 +1,1 @@
+pip3.13 install --user flask flask-wtf flask-jwt-extended marshmallow pandas openpyxl qrcode python-docx defusedxml werkzeug

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="utf-8">
+    <title>تقرير موظف - {{ emp_data.get('الاسم الأول', '') }} {{ emp_data.get('الكنية', '') }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            direction: rtl;
+            padding: 30px;
+            font-size: 12pt;
+        }
+        h1, h2, h3 {
+            text-align: center;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: right;
+        }
+        th {
+            background-color: #1e3a5f;
+            color: white;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 10pt;
+            color: #666;
+        }
+        @media print {
+            body {
+                padding: 0;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+        .watermark {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>تقرير الموظف</h1>
+    <h2>{{ emp_data.get('الاسم الأول', '') }} {{ emp_data.get('الكنية', '') }}</h2>
+    
+    <div style="text-align: center; margin-bottom: 20px;">
+        {% if not include_previous %}
+        <strong>عرض الإجازات للسنة الحالية فقط ({{ current_year }})</strong>
+        {% else %}
+        <strong>عرض جميع الإجازات (جميع السنوات)</strong>
+        {% endif %}
+    </div>
+
+    <h3>البيانات الأساسية</h3>
+    <table>
+        {% for key, value in emp_data.items() %}
+        <tr>
+            <th style="width: 30%;">{{ key }}</th>
+            <td>{{ value }}</td>
+        </tr>
+        {% endfor %}
+        <tr><th>التصنيف</th><td>{{ classification_name }}</td></tr>
+        <tr><th>الوسوم</th><td>{{ tags }}</td></tr>
+    </table>
+
+    <h3>أرصدة الإجازات الحالية ({{ current_year }})</h3>
+    <table>
+        <thead>
+            <tr><th>نوع الإجازة</th><th>الاستحقاق</th><th>المرحَّل</th><th>المستخدم</th><th>المتبقي</th></tr>
+        </thead>
+        <tbody>
+            {% for b in balances %}
+            <tr>
+                <td>{{ b.type }}</td>
+                <td>{{ b.entitled }}</td>
+                <td>{{ b.carried or 0 }}</td>
+                <td>{{ b.taken }}</td>
+                <td>{{ b.balance }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>سجل الإجازات</h3>
+    <table>
+        <thead>
+            <tr><th>النوع</th><th>من</th><th>إلى</th><th>الأيام</th><th>ملاحظات</th></tr>
+        </thead>
+        <tbody>
+            {% for l in leave_log %}
+            <tr>
+                <td>{{ l.vt_name }}</td>
+                <td>{{ l.start_date }}</td>
+                <td>{{ l.end_date }}</td>
+                <td>{{ l.days_taken }}</td>
+                <td>{{ l.notes or '' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        تم إنشاء التقرير بواسطة نظام إدارة الموظفين<br>
+        {{ now.strftime('%d/%m/%Y %H:%M') if now else '' }}
+    </div>
+</body>
+</html>

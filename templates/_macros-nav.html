@@ -1,0 +1,22 @@
+{# templates/_macros-nav.html #}
+{% macro nav() %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+<div class="container-fluid">
+<a class="navbar__brand" href="{{ url_for('employees.list') }}">نظام الموظفين</a>
+<button class="navbar-toggler" data-bs-target="#navbarNav" data-bs-toggle="collapse" type="button">
+<span class="navbar-toggler-icon"></span>
+</button>
+<div class="collapse navbar-collapse" id="navbarNav">
+<ul class="navbar-nav ms-auto">
+<li class="sidebar__nav-item"><a class="nav-link" href="{{ url_for('employees.list') }}">الموظفون</a></li>
+<li class="sidebar__nav-item"><a class="nav-link" href="{{ url_for('tags.list') }}">الوسوم</a></li>
+<li class="sidebar__nav-item"><a class="nav-link" href="{{ url_for('classifications.list') }}">التصنيفات</a></li>
+<li class="sidebar__nav-item"><a class="nav-link" href="{{ url_for('vacation_types.list') }}">الإجازات</a></li>
+<li class="sidebar__nav-item"><a class="nav-link" href="{{ url_for('export_import.export_report') }}">التقارير</a></li>
+<li class="sidebar__nav-item"><a class="nav-link" href="{{ url_for('dashboard.dashboard') }}">لوحة التحكم</a></li>
+</ul>
+<button class="btn btn-outline-light ms-3" id="darkModeToggle" title="تبديل الوضع الداكن" aria-label="تبديل الوضع الداكن">🌓</button>
+</div>
+</div>
+</nav>
+{% endmacro %}

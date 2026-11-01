@@ -1,0 +1,10 @@
+{% macro stat_card(title, value, icon, color, url) %}
+<div class="dashboard-card dashboard-card--{{ color }} text-white">
+    <i class="bi bi-{{ icon }}"></i>
+    <div class="card__body text-center d-flex flex-column justify-content-center">
+        <h5>{{ value }}</h5>
+        <p>{{ title }}</p>
+    </div>
+    <a href="{{ url }}" class="stretched-link"></a>
+</div>
+{% endmacro %}

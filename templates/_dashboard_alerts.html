@@ -1,0 +1,56 @@
+{# تم إلغاء نظام الأرصدة - إزالة تنبيهات low_balance و zero_admin_balance #}
+
+{% if contract_alerts %}
+<div class="alert alert-warning">
+    <strong><i class="bi bi-file-earmark-text ms-1"></i>عقود تنتهي خلال 30 يوماً:</strong>
+    <ul class="mb-0 mt-2">
+        {% for name, date, remaining in contract_alerts %}
+            <li>{{ name }} - {{ date | arabic_date }} (متبقي {{ remaining }} يوم)</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+{% if unreduced_hours > 0 %}
+<div class="alert alert-info">
+    <i class="bi bi-clock-history ms-1"></i>هناك {{ unreduced_hours }} ساعة تأخير غير محولة.
+    <a class="alert-link" href="{{ url_for('employees.vacation_register') }}">سجل تأخير</a>
+</div>
+{% endif %}
+
+{% if suspicious_patterns %}
+<div class="alert alert-danger">
+    <strong><i class="bi bi-exclamation-triangle ms-1"></i>أنماط إجازات غير طبيعية:</strong>
+    <ul class="mb-0 mt-2">
+        {% for s in suspicious_patterns %}
+            <li>{{ s.name }} - {{ s.thu_starts + s.sat_ends }} إجازة متصلة بنهاية الأسبوع (من أصل {{ s.total_leaves }})</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+{% if std_deviation_data %}
+<div class="card mb-4">
+    <div class="card__header bg-primary text-white"><i class="bi bi-graph-up-arrow ms-1"></i>الانحراف المعياري للإجازات حسب القسم</div>
+    <div class="card__body">
+        <div class="table--responsive">
+            <table class="table table--sm">
+                <thead class="table__header">
+                    <th>القسم</th><th>المتوسط</th><th>الانحراف المعياري</th><th>الحد الأدنى</th><th>الحد الأقصى</th>
+                </thead>
+                <tbody>
+                    {% for d in std_deviation_data %}
+                    <tr>
+                        <td>{{ d.dept }}</td>
+                        <td>{{ d.mean }}</td>
+                        <td>{{ d.std_dev }}</td>
+                        <td>{{ d.min }}</td>
+                        <td>{{ d.max }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}

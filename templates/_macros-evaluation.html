@@ -1,0 +1,24 @@
+{# templates/_macros-evaluation.html #}
+{% macro radar_chart(criteria_names, scores, size=300) %}
+{# This calls the global function registered in Jinja environment #}
+{{ radar_chart_func(criteria_names, scores, size) | safe }}
+{% endmacro %}
+
+{% macro evaluation_card(evaluation, criteria, scores, employee_id) %}
+<div class="card mb-3">
+<div class="card__body">
+<h5 class="card__title">تقييم بتاريخ {{ evaluation.evaluation_date }}</h5>
+<p class="card__text"><strong>المقيم:</strong> {{ evaluation.evaluator_name }}</p>
+        {% if evaluation.notes %}
+        <p class="card__text"><strong>ملاحظات:</strong> {{ evaluation.notes }}</p>
+        {% endif %}
+        <div class="text-center">
+            {{ radar_chart(criteria, scores, size=250) }}
+        </div>
+<form action="{{ url_for('evaluations.delete', id=employee_id, eval_id=evaluation.id) }}" class="text-center mt-2" method="POST">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+<button class="btn btn-sm btn-danger" onclick="return confirm('حذف التقييم؟')" type="submit">حذف</button>
+</form>
+</div>
+</div>
+{% endmacro %}

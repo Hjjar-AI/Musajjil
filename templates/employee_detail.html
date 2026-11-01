@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>تفاصيل الموظف: {{ emp_data.get('الاسم الأول', emp.id) }} {{ emp_data.get('الكنية', '') }}</h2>
+{% if contract_alert is not none and contract_alert <= 30 %}<div class="alert alert-warning">تنبيه: سينتهي عقد الموظف في {{ contract_end | arabic_date }} (باقي {{ contract_alert }} يوم)</div>{% endif %}
+
+<!-- Employee data in responsive grid -->
+<div class="card mb-3">
+    <div class="card__body">
+        <div class="employee-detail-grid">
+            {% for title, val in emp_data.items() %}
+            <div class="employee-detail-field">
+                <strong>{{ title }}:</strong>
+                <span>{% if title in ['تاريخ الولادة', 'تاريخ المباشرة الأخيرة'] %}{{ val | arabic_date }}{% else %}{{ val }}{% endif %}</span>
+            </div>
+            {% endfor %}
+            <div class="employee-detail-field">
+                <strong>التصنيف:</strong>
+                <span>{{ classification }}</span>
+            </div>
+            <div class="employee-detail-field">
+                <strong>الوسوم:</strong>
+                <span>{{ tags|join(', ') }}</span>
+            </div>
+            {% if contract_end %}
+            <div class="employee-detail-field">
+                <strong>تاريخ انتهاء العقد:</strong>
+                <span>{{ contract_end | arabic_date }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="mb-3 flex-wrap gap-2 d-flex">
+    <a class="btn btn-outline-primary" href="{{ url_for('employees.edit', id=emp.id) }}">تعديل البيانات</a>
+    <a class="btn btn-outline-secondary" href="{{ url_for('employees.leave', id=emp.id) }}">تسجيل إجازة</a>
+    <a class="btn btn-outline-info" href="{{ url_for('employees.entitlements', id=emp.id) }}">الاستحقاقات</a>
+    <a class="btn btn-outline-success" href="{{ url_for('evaluations.list', id=emp.id) }}">التقييمات</a>
+    <a class="btn btn-outline-warning" href="{{ url_for('id_card.generate', employee_id=emp.id) }}"><i class="bi bi-credit-card"></i> بطاقة تعريف</a>
+    <form class="d-inline" action="{{ url_for('employees.delete', id=emp.id) }}" method="POST" data-confirm-message="هل أنت متأكد من حذف الموظف: {{ emp_data.get('الاسم الأول', '') }} {{ emp_data.get('الكنية', '') }}？">
+        <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+        <button class="btn btn-outline-danger" type="submit">حذف</button>
+    </form>
+</div>
+
+<!-- Yearly totals (taken days only) -->
+<h3>إجمالي الإجازات المستهلكة حسب السنة</h3>
+<div class="card mb-4">
+    <div class="card__body">
+        <form method="GET" class="row g-2 align-items-end">
+            <input type="hidden" name="id" value="{{ emp.id }}">
+            <div class="col-auto">
+                <label class="form-label">اختر السنة:</label>
+                <select name="year" class="form-select" onchange="this.form.submit()">
+                    {% for y in available_years %}
+                    <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-sm btn-primary">عرض</button>
+            </div>
+        </form>
+        <div class="mt-3">
+            <div class="table--responsive">
+                <table class="table table--sm table--bordered">
+                    <thead class="table__header">
+                        <tr><th>نوع الإجازة</th><th>إجمالي الأيام المستهلكة في {{ selected_year }}</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for vt in yearly_totals %}
+                        <tr>
+                            <td>{{ vt.type }}<\/td>
+                            <td>{{ vt.total }}<\/td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="2" class="text-center text-muted">لا توجد إجازات مسجلة لهذه السنة<\/td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3>إجمالي الإجازات المستهلكة (حسب النوع – جميع السنوات)</h3>
+<div class="table--responsive mb-4">
+    <table class="table table--bordered">
+        <thead class="table__header">
+            <tr><th>نوع الإجازة</th><th>عدد الأيام المستهلكة</th></tr>
+        </thead>
+        <tbody>
+            {% for vt_name, total_days in summary.items() %}
+            <tr><td>{{ vt_name }}<\/td><td>{{ total_days }}<\/td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<h3>سجل الإجازات</h3>
+<div class="table--responsive mb-4">
+    <table class="table table--bordered">
+        <thead class="table__header">
+            <tr><th>النوع</th><th>من</th><th>إلى</th><th>الأيام</th><th>ملاحظات</th><th></th></tr>
+        </thead>
+        <tbody>
+            {% for l in leave_log %}
+            <tr>
+                <td>{{ l.vt_name }} {% if l.is_locked %}<i class="bi bi-lock-fill text-danger ms-1" title="هذه الإجازة مقفلة"></i>{% endif %}<\/td>
+                <td>{{ l.start_date | arabic_date }}<\/td>
+                <td>{{ l.end_date | arabic_date }}<\/td>
+                <td>{{ l.days_taken }}<\/td>
+                <td>{{ l.notes or '' }}<\/td>
+                <td>
+                    {% if l.is_locked %}
+                    <button class="btn btn-sm btn-secondary" disabled>مقفل</button>
+                    {% else %}
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-sm btn-outline-primary edit-leave-btn"
+                            data-id="{{ l.id }}"
+                            data-start="{{ l.start_date }}"
+                            data-end="{{ l.end_date }}"
+                            data-days="{{ l.days_taken }}"
+                            data-type="{{ l.vt_name }}"
+                            data-note="{{ l.notes }}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <form class="d-inline" action="{{ url_for('employees.leave_delete', id=emp.id, log_id=l.id) }}" method="POST" data-confirm-message="هل أنت متأكد من حذف إجازة {{ l.vt_name }} بتاريخ {{ l.start_date }}؟">
+                            <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+                            <button class="btn btn-sm btn-danger" type="submit">حذف</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                  </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<h3>حاسبة مدة الخدمة</h3>
+<div class="card mb-3">
+    <div class="card__body">
+        <p>إجمالي الخدمة الفعلية: <span class="badge bg-info">{{ total_service }} يوم</span> ({{ total_years }} سنة و {{ total_remain_days }} يوم)</p>
+        <div class="row align-items-center">
+            <div class="col-md-6"><label>أيام الغياب غير المعوَّضة (تُطرح من الخدمة):</label></div>
+            <div class="col-md-6">
+                <form action="{{ url_for('employees.update_uncompensated_days', id=emp.id) }}" class="d-flex gap-2" method="POST">
+                    <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+                    <input class="form-control" name="uncompensated_days" step="0.5" style="width:120px" type="number" value="{{ uncompensated_days }}"/>
+                    <button class="btn btn-sm btn-secondary" type="submit">تحديث</button>
+                </form>
+            </div>
+        </div>
+        <p>الخدمة بعد خصم أيام الغياب: <span class="badge bg-info">{{ effective_service }} يوم</span> ({{ effective_years }} سنة و {{ effective_remain_days }} يوم)</p>
+        {% if target > 0 %}
+        <p>المدة المستهدفة: <span class="badge bg-warning text-dark">{{ target }} يوم</span> ({{ target_years }} سنة و {{ target_remain_days }} يوم)</p>
+        <p>المتبقي: <span class="badge bg-{{ 'success' if remaining >= 0 else 'danger' }}">{{ remaining }} يوم ({{ remaining_years }} سنة و {{ remaining_remain_days }} يوم)</span></p>
+        <p>تاريخ الإنجاز المتوقع (حسب المتبقي): <strong class="text-primary">{% if completion_date == "تم الوصول بالفعل" %}{{ completion_date }}{% else %}{{ completion_date | arabic_date }}{% endif %}</strong></p>
+        {% else %}
+        <p>لم تحدد مدة مستهدفة بعد.</p>
+        {% endif %}
+        <form action="{{ url_for('employees.update_target_service', id=emp.id) }}" class="row g-2 mb-3" method="POST">
+            <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+            <div class="col-auto"><input class="form-control" min="0" name="target_years" placeholder="سنوات" type="number" value="{{ (target // 365) if target > 0 else '' }}"/></div>
+            <div class="col-auto"><input class="form-control" max="11" min="0" name="target_months" placeholder="أشهر" type="number" value="{{ (target % 365 // 30) if target > 0 else '' }}"/></div>
+            <div class="col-auto"><button class="btn btn-sm btn-primary" type="submit">تحديث الهدف</button></div>
+        </form>
+        <h6>فترات العمل</h6>
+        <form action="{{ url_for('employees.add_service_period', id=emp.id) }}" class="row g-2 mb-3" method="POST">
+            <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+            <div class="col-auto"><div class="input-group"><span class="input-group-text"><i class="bi bi-calendar"></i></span><input class="form-control date-picker" name="start_date" placeholder="يوم/شهر/سنة" required type="text"/></div></div>
+            <div class="col-auto"><div class="input-group"><span class="input-group-text"><i class="bi bi-calendar"></i></span><input class="form-control date-picker" name="end_date" placeholder="يوم/شهر/سنة (اختياري، اليوم افتراضياً)" type="text"/></div></div>
+            <div class="col-auto"><input class="form-control" name="label" placeholder="وصف" type="text"/></div>
+            <div class="col-auto"><button class="btn btn-sm btn-success" type="submit">إضافة فترة</button></div>
+        </form>
+        <div class="table--responsive">
+            <table class="table table--sm">
+                <thead class="table__header">
+                    <tr><th>من</th><th>إلى</th><th>الوصف</th><th></th></tr>
+                </thead>
+                <tbody>
+                    {% for p in periods %}
+                    <tr>
+                        <td>{{ p.start_date | arabic_date }}<\/td>
+                        <td>{{ p.end_date | arabic_date }}<\/td>
+                        <td>{{ p.label or '' }}<\/td>
+                        <td>
+                            <form action="{{ url_for('employees.delete_service_period', id=emp.id, period_id=p.id) }}" method="POST">
+                                <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+                                <button class="btn btn-sm btn-danger" type="submit">حذف</button>
+                            </form>
+                          </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Leave Modal (unchanged) -->
+<div class="modal fade" id="editLeaveModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-primary text-white"><h5 class="modal-title"><i class="bi bi-pencil-square"></i> تعديل الإجازة</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><form id="editLeaveForm" method="POST" action="{{ url_for('employees.edit_leave', leave_id=0) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="leave_id" id="edit_leave_id"><div class="modal-body"><div class="mb-3"><label class="form-label">نوع الإجازة</label><input type="text" class="form-control" id="edit_type" disabled></div><div class="mb-3"><label class="form-label">تاريخ البداية</label><input type="date" class="form-control" name="start_date" id="edit_start_date" required></div><div class="mb-3"><label class="form-label">تاريخ النهاية</label><input type="date" class="form-control" name="end_date" id="edit_end_date" required></div><div class="mb-3"><label class="form-label">عدد الأيام</label><input type="number" step="0.5" class="form-control" name="days_taken" id="edit_days_taken"></div><div class="mb-3"><label class="form-label">ملاحظات</label><textarea class="form-control" name="notes" id="edit_notes" rows="2"></textarea></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button><button type="submit" class="btn btn-primary">حفظ التغييرات</button></div></form></div></div></div>
+
+<script>
+(function() {
+    function recalcDays() {
+        const start = document.getElementById('edit_start_date').value;
+        const end = document.getElementById('edit_end_date').value;
+        if (start && end && start <= end) {
+            fetch(`/api/calculate_days?start=${start}&end=${end}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.days) document.getElementById('edit_days_taken').value = data.days;
+                })
+                .catch(e => console.warn(e));
+        }
+    }
+    function initEditLeaveModal() {
+        const btns = document.querySelectorAll('.edit-leave-btn');
+        if (!btns.length) return;
+        btns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.getElementById('edit_leave_id').value = this.dataset.id;
+                document.getElementById('edit_type').value = this.dataset.type;
+                document.getElementById('edit_start_date').value = this.dataset.start;
+                document.getElementById('edit_end_date').value = this.dataset.end;
+                document.getElementById('edit_days_taken').value = this.dataset.days;
+                document.getElementById('edit_notes').value = this.dataset.note;
+                const modal = new bootstrap.Modal(document.getElementById('editLeaveModal'));
+                modal.show();
+            });
+        });
+        const startDateInput = document.getElementById('edit_start_date');
+        const endDateInput = document.getElementById('edit_end_date');
+        if (startDateInput && endDateInput) {
+            startDateInput.addEventListener('change', recalcDays);
+            endDateInput.addEventListener('change', recalcDays);
+        }
+        const editForm = document.getElementById('editLeaveForm');
+        if (editForm) {
+            editForm.addEventListener('submit', function(e) {
+                const leaveId = document.getElementById('edit_leave_id').value;
+                this.action = this.action.replace('/0', `/${leaveId}`);
+            });
+        }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initEditLeaveModal);
+    } else {
+        initEditLeaveModal();
+    }
+})();
+</script>
+{% endblock %}

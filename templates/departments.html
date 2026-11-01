@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-building ms-1"></i>إدارة الأقسام</h2>
+<div class="card mb-4">
+<div class="card__header bg-primary text-white">
+<i class="bi bi-plus-circle"></i> إضافة قسم جديد
+    </div>
+<div class="card__body">
+<form action="{{ url_for('departments.add') }}" class="row g-2 row g-3" method="POST">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+<div class="col-auto">
+<input class="form-control" name="name" placeholder="اسم القسم" required="" type="text"/>
+</div>
+<div class="col-auto">
+<button class="btn btn-primary" type="submit"><i class="bi bi-plus-circle ms-1"></i>إضافة</button>
+</div>
+</form>
+</div>
+</div>
+<div class="table--responsive">
+<table class="table table--bordered">
+<thead class="table__header">
+<tr><th>القسم</th><th></th></tr>
+</thead>
+<tbody>
+            {% for dept in departments %}
+            <tr>
+<form action="{{ url_for('departments.edit', id=dept.id) }}" class="d-contents row g-3" method="POST">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+<td><input class="form-control form-control-sm" name="name" required="" type="text" value="{{ dept.name }}"/></td>
+<td>
+<div class="btn-group btn-group-sm">
+<button class="btn btn-outline-primary" title="حفظ" type="submit"><i class="bi bi-check-lg"></i></button>
+</div>
+</td>
+</form>
+<td>
+<form action="{{ url_for('departments.delete', id=dept.id) }}" class="row g-3" method="POST" data-confirm-message="حذف القسم {{ dept.name }}؟">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+<button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i> حذف</button>
+</form>
+</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+</table>
+</div>
+{% endblock %}

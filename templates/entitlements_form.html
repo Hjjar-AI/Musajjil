@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>تعديل استحقاقات الإجازات</h2>
+<form method="POST" class="row g-3">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% for vt in vac_types %}<div class="col-md-6"><label class="form-label">{{ vt.name }} (الافتراضي: {{ defaults.get(vt.id, 0) }})</label><input type="number" step="0.5" class="form-control" name="entitled_{{ vt.id }}" value="{{ current.get(vt.id, defaults.get(vt.id, 0)) }}"></div>{% endfor %}
+    <div class="col-12"><button type="submit" class="btn btn-primary">حفظ</button><a href="{{ url_for('employees.detail', id=employee_id) }}" class="btn btn-secondary">إلغاء</a></div>
+</form>
+{% endblock %}

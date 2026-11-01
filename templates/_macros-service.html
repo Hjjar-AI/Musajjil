@@ -1,0 +1,58 @@
+{# templates/_macros-service.html #}
+{% macro service_calculator(periods, total, target, remaining, employee_id) %}
+<div class="card mb-3">
+<div class="card__body">
+<h5 class="card__title">حاسبة مدة الخدمة</h5>
+<p>الإجمالي: <span class="badge bg-info text-dark">{{ total }} يوم</span>
+           المدة المستهدفة: <span class="badge bg-warning text-dark">{{ target }} يوم</span>
+           المتبقي: <span class="badge bg-{{ 'success' if remaining >= 0 else 'danger' }}">{{ remaining }} يوم</span></p>
+<form action="{{ url_for('employees.update_target_service', id=employee_id) }}" class="row g-2 mb-3" method="POST">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+<div class="col-auto">
+<input class="form-control" name="target_service_days" placeholder="المدة المستهدفة" step="0.5" type="number" value="{{ target }}"/>
+</div>
+<div class="col-auto">
+<button class="btn btn-sm btn-primary" type="submit">تحديث الهدف</button>
+</div>
+</form>
+<h6>فترات العمل</h6>
+<form action="{{ url_for('employees.add_service_period', id=employee_id) }}" class="row g-2 mb-3" method="POST">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+<div class="col-auto">
+<input class="form-control" name="start_date" required="" type="date"/>
+</div>
+<div class="col-auto">
+<input class="form-control" name="end_date" required="" type="date"/>
+</div>
+<div class="col-auto">
+<input class="form-control" name="label" placeholder="وصف (اختياري)" type="text"/>
+</div>
+<div class="col-auto">
+<button class="btn btn-sm btn-success" type="submit">إضافة فترة</button>
+</div>
+</form>
+<div class="table--responsive">
+<table class="table table--sm">
+<thead class="table__header">
+<tr><th>من</th><th>إلى</th><th>الوصف</th><th></th></tr>
+</thead>
+<tbody>
+                {% for p in periods %}
+                <tr>
+<td>{{ p.start_date }}</td>
+<td>{{ p.end_date }}</td>
+<td>{{ p.label or '' }}</td>
+<td>
+<form action="{{ url_for('employees.delete_service_period', id=employee_id, period_id=p.id) }}" method="POST">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+<button class="btn btn-sm btn-danger" type="submit">حذف</button>
+</form>
+</td>
+</tr>
+                {% endfor %}
+                </tbody>
+</table>
+</div>
+</div>
+</div>
+{% endmacro %}

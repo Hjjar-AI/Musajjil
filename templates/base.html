@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar" data-bs-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>نظام إدارة الموظفين</title>
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap-icons.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/flatpickr.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/app.css') }}" rel="stylesheet">
+    <style>
+        a, .nav-link, .dropdown-item, .btn-link, .sidebar__nav-link {
+            text-decoration: none !important;
+        }
+        a:hover, .nav-link:hover, .dropdown-item:hover, .sidebar__nav-link:hover {
+            text-decoration: none !important;
+        }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body class="d-flex flex-column min-vh-100" data-bs-theme="light">
+    {% include '_navbar.html' %}
+    <div class="sidebar__backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
+    {% include '_sidebar.html' %}
+    <main class="flex-grow-1 px-2 px-md-3 px-lg-4 py-3" id="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="row">
+                    <div class="col-12">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="إغلاق"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+    {% include '_footer.html' %}
+
+    <!-- External JavaScript libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="{{ url_for('static', filename='js/flatpickr.min.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/flatpickr_ar.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+
+    <!-- Core UI handlers -->
+    <script src="{{ url_for('static', filename='js/sidebar.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/confirm-handler.js') }}" defer></script>
+
+    <!-- Page‑specific scripts -->
+    <script src="{{ url_for('static', filename='js/calendar.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/employee-detail.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/employees-list.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/holidays.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/bulk-edit.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/vacation-register.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/smart-holidays.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/setup-wizard.js') }}" defer></script>
+
+    {% block scripts %}{% endblock %}
+
+    <!-- Wizard Modal -->
+    <div class="modal fade" id="wizardModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="bi bi-magic"></i> وضع الساحر</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                </div>
+                <div class="modal-body">
+                    <p>سيتم إنشاء 10 موظفين تجريبيين مع إجازات عشوائية. سيتم حذفهم تلقائياً بعد 24 ساعة أو عند الضغط على "تنظيف".</p>
+                    <form action="{{ url_for('wizard.start_wizard') }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-primary w-100">بدء الجلسة التجريبية</button>
+                    </form>
+                    <hr>
+                    <form action="{{ url_for('wizard.cleanup_demo') }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-danger w-100">حذف البيانات التجريبية</button>
+                    </form>
+                    <hr>
+                    <a href="{{ url_for('wizard.interactive_demo') }}" class="btn btn-info w-100">وضع التجربة التفاعلي</a>
+                    <form action="{{ url_for('wizard.cleanup_interactive') }}" method="POST" class="mt-2">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-secondary w-100">تنظيف التجربة</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> تأكيد الحذف</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                </div>
+                <div class="modal-body">
+                    <p>هل أنت متأكد من حذف هذا العنصر؟ لا يمكن التراجع عن هذا الإجراء.</p>
+                    <p id="deleteItemInfo" class="text-muted"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <form id="deleteForm" method="POST" style="display:inline;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-danger">حذف</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

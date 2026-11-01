@@ -1,0 +1,167 @@
+<nav class="navbar navbar-dark sticky-top py-1">
+    <div class="container-fluid px-2 d-flex align-items-center justify-content-between">
+        <!-- Left side: sidebar toggle -->
+        <div class="d-flex align-items-center">
+            <button class="btn btn-outline-light btn-sm" type="button" id="sidebarToggle" aria-label="فتح القائمة الجانبية">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+        </div>
+
+        <!-- Center: brand with icon and title (click leads to employee list) -->
+        <div class="d-flex align-items-center gap-3">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('employees.list') }}">
+                <div class="brand-icon-circle">
+                    <i class="bi bi-building-fill"></i>
+                </div>
+                <span class="fw-semibold d-none d-sm-inline brand-text">نظام الموظفين</span>
+            </a>
+        </div>
+
+        <!-- Right side: shortcuts, theme, user menu -->
+        <div class="d-flex align-items-center gap-2">
+            <!-- Shortcut Buttons (two most used) -->
+            <div class="d-none d-md-flex gap-2">
+                <a href="{{ url_for('employees.add') }}" class="btn btn-outline-light btn-sm shortcut-btn" title="إضافة موظف جديد">
+                    <i class="bi bi-person-plus-fill"></i> <span class="shortcut-text">إضافة موظف</span>
+                </a>
+                <a href="{{ url_for('employees.vacation_register') }}" class="btn btn-outline-light btn-sm shortcut-btn" title="تسجيل إجازة">
+                    <i class="bi bi-calendar-plus-fill"></i> <span class="shortcut-text">تسجيل إجازة</span>
+                </a>
+            </div>
+
+            <!-- Theme Dropdown -->
+            <div class="dropdown">
+                <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-palette-fill"></i> <span class="d-none d-md-inline">الثيمات</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                    <li><a class="dropdown-item theme-option" data-theme="auto" href="#"><i class="bi bi-circle-half"></i> تلقائي (حسب الوقت)</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item theme-option" data-theme="light" href="#"><i class="bi bi-brightness-high-fill"></i> فاتح</a></li>
+                    <li><a class="dropdown-item theme-option" data-theme="dark" href="#"><i class="bi bi-moon-stars-fill"></i> داكن</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li class="dropdown-header">ثيمات مخصصة</li>
+                    <li><a class="dropdown-item theme-option" data-theme="medical" href="#"><i class="bi bi-heart-pulse"></i> طبي</a></li>
+                    <li><a class="dropdown-item theme-option" data-theme="pastel" href="#"><i class="bi bi-flower1"></i> باستيل</a></li>
+                    <li><a class="dropdown-item theme-option" data-theme="lightday" href="#"><i class="bi bi-sun"></i> نهاري</a></li>
+                    <li><a class="dropdown-item theme-option" data-theme="sunset" href="#"><i class="bi bi-sunset-fill"></i> غروب</a></li>
+                    <li><a class="dropdown-item theme-option" data-theme="ocean" href="#"><i class="bi bi-water"></i> محيطي</a></li>
+                    <li><a class="dropdown-item theme-option" data-theme="amber" href="#"><i class="bi bi-gem"></i> كهرماني</a></li>
+                    <li><a class="dropdown-item theme-option" data-theme="lavender" href="#"><i class="bi bi-flower2"></i> لافندر</a></li>
+                    <li><a class="dropdown-item theme-option" data-theme="night" href="#"><i class="bi bi-moon"></i> ليلي</a></li>
+                </ul>
+            </div>
+
+            <!-- User Menu -->
+            {% if session.user_id %}
+            <div class="dropdown">
+                <button class="btn btn-outline-light dropdown-toggle btn-sm" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-person-circle"></i> <span class="d-none d-md-inline">{{ session.username }}</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                    {% if session.get('role') == 'admin' %}
+                    <li><a class="dropdown-item" href="{{ url_for('auth.change_password') }}">تغيير كلمة المرور</a></li>
+                    {% endif %}
+                    <li><a class="dropdown-item" href="{{ url_for('settings_page.index') }}">إعدادات المستخدم</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">خروج</a></li>
+                </ul>
+            </div>
+            {% else %}
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-sm">دخول</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<style>
+/* Brand icon circle styling */
+.brand-icon-circle {
+    width: 32px;
+    height: 32px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+.brand-icon-circle i {
+    font-size: 1.2rem;
+    color: var(--color-primary, #1e3a5f);
+}
+.brand-text {
+    font-size: 1.2rem;
+    letter-spacing: -0.5px;
+}
+/* Shortcut buttons styling */
+.shortcut-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.6rem;
+    font-size: 0.85rem;
+}
+.shortcut-btn i {
+    font-size: 1rem;
+}
+@media (max-width: 768px) {
+    .shortcut-text {
+        display: none;
+    }
+    .shortcut-btn {
+        padding: 0.25rem 0.4rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function setTheme(theme) {
+        if (theme === 'auto') {
+            document.cookie = "auto_dark_mode=true;path=/;max-age=31536000";
+            const hour = new Date().getHours();
+            const shouldDark = hour >= 18 || hour < 6;
+            document.documentElement.setAttribute('data-bs-theme', shouldDark ? 'dark' : 'light');
+            localStorage.removeItem('bsTheme');
+            document.body.classList.remove('theme-medical', 'theme-pastel', 'theme-lightday', 'theme-sunset', 'theme-ocean', 'theme-amber', 'theme-lavender', 'theme-night');
+        } else {
+            document.cookie = "auto_dark_mode=false;path=/;max-age=31536000";
+            document.body.classList.remove('theme-medical', 'theme-pastel', 'theme-lightday', 'theme-sunset', 'theme-ocean', 'theme-amber', 'theme-lavender', 'theme-night');
+            if (theme === 'light' || theme === 'dark') {
+                document.documentElement.setAttribute('data-bs-theme', theme);
+                localStorage.setItem('bsTheme', theme);
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', 'light');
+                document.body.classList.add('theme-' + theme);
+                localStorage.setItem('bsTheme', theme);
+            }
+        }
+    }
+
+    // Load saved theme
+    const autoMode = document.cookie.includes('auto_dark_mode=true');
+    if (autoMode) {
+        const hour = new Date().getHours();
+        const shouldDark = hour >= 18 || hour < 6;
+        document.documentElement.setAttribute('data-bs-theme', shouldDark ? 'dark' : 'light');
+    } else {
+        const saved = localStorage.getItem('bsTheme');
+        if (saved && (saved === 'light' || saved === 'dark')) {
+            document.documentElement.setAttribute('data-bs-theme', saved);
+        } else if (saved && ['medical', 'pastel', 'lightday', 'sunset', 'ocean', 'amber', 'lavender', 'night'].includes(saved)) {
+            document.documentElement.setAttribute('data-bs-theme', 'light');
+            document.body.classList.add('theme-' + saved);
+        }
+    }
+
+    // Theme option click handlers
+    document.querySelectorAll('.theme-option').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const theme = this.getAttribute('data-theme');
+            setTheme(theme);
+        });
+    });
+});
+</script>

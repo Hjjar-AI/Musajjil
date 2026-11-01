@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>التصنيفات</h2>
+<div class="card mb-3">
+    <div class="card__header bg-primary text-white">
+        <i class="bi bi-tag"></i> إضافة تصنيف جديد
+    </div>
+    <div class="card__body">
+        <form action="{{ url_for('classifications.add') }}" class="row g-2 row g-3" method="POST">
+            <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+            <div class="col-auto">
+                <input class="form-control" name="name" placeholder="اسم التصنيف" required="" type="text"/>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary" type="submit">إضافة</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="table--responsive">
+    <table class="table table--bordered">
+        <thead class="table__header">
+            <tr><th>الاسم</th><th></th></tr>
+        </thead>
+        <tbody>
+            {% for cls in classes %}
+            <tr>
+                <td>{{ cls.name }}</td>
+                <td>
+                    <form action="{{ url_for('classifications.delete', id=cls.id) }}" class="row g-3" method="POST" data-confirm-message="حذف التصنيف {{ cls.name }}؟">
+                        <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+                        <button class="btn btn-sm btn-danger" type="submit">حذف</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<!-- removed link to classifications.manage -->
+{% endblock %}

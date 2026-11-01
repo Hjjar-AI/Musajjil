@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4">تسجيل إجازة / تأخير / ساعية</h2>
+<form method="POST" id="registerForm" class="row g-3">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="col-md-6 position-relative">
+        <label class="form-label">الموظف</label>
+        <input type="text" class="form-control" id="employee_search" placeholder="ابحث بالاسم، الكنية، أو اسم الأب..." autocomplete="off">
+        <input type="hidden" name="employee_id" id="employee_id">
+        <div id="search_results" class="list-group position-absolute w-100" style="z-index:1050; max-height:200px; overflow-y:auto;"></div>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">نوع الإجازة</label>
+        <div class="btn-group w-100" role="group">
+            <button type="button" class="btn btn-outline-primary" id="dailyTab">إجازات يومية</button>
+            <button type="button" class="btn btn-outline-secondary" id="hourlyTab">إجازات بالساعة / تأخير</button>
+        </div>
+    </div>
+    <div class="col-md-6" id="dailyTypes">
+        <label class="form-label">نوع الإجازة (يومية)</label>
+        <select class="form-select" name="vacation_type_id" id="vacation_type_daily">
+            <option value="">اختر النوع</option>
+            {% for vt in vac_types %}{% if not vt.name.startswith('تأخير') and not vt.name.startswith('إجازة ساعية') %}<option value="{{ vt.id }}" data-hpd="{{ vt.hours_per_day }}">{{ vt.name }}</option>{% endif %}{% endfor %}
+        </select>
+    </div>
+    <div class="col-md-6" id="hourlyTypes" style="display:none;">
+        <label class="form-label">نوع الإجازة (ساعات / تأخير)</label>
+        <select class="form-select" name="vacation_type_id_hourly" id="vacation_type_hourly">
+            <option value="">اختر النوع</option>
+            {% for vt in vac_types %}{% if vt.name.startswith('تأخير') or vt.name.startswith('إجازة ساعية') %}<option value="{{ vt.id }}" data-hpd="{{ vt.hours_per_day }}">{{ vt.name }}</option>{% endif %}{% endfor %}
+        </select>
+        <input type="hidden" name="vacation_type_id" id="selected_vt_id">
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">التاريخ</label>
+        <div class="input-group"><span class="input-group-text"><i class="bi bi-calendar"></i></span><input type="text" class="form-control date-picker" name="start_date" id="start_date" value="{{ today.strftime('%d/%m/%Y') if today else '' }}" required placeholder="يوم/شهر/سنة"></div>
+        <input type="hidden" name="end_date" id="end_date">
+    </div>
+    <div class="col-md-3" id="hoursField">
+        <label class="form-label">عدد الساعات</label>
+        <input type="number" step="0.5" class="form-control" name="hours" id="hours" min="0">
+        <div class="form-text">ساعات اليوم: <span id="hpd_display">8</span></div>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">عدد الأيام</label>
+        <input type="number" step="0.1" class="form-control" name="days_taken" id="days_taken" placeholder="أدخل عدد الأيام يدوياً" required>
+    </div>
+    <div class="col-12">
+        <label class="form-label">ملاحظات</label>
+        <textarea class="form-control" name="notes" rows="2"></textarea>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">تسجيل</button>
+    </div>
+</form>
+{% endblock %}

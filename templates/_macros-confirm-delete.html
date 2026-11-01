@@ -1,0 +1,7 @@
+{# templates/_macros-confirm-delete.html #}
+{% macro confirm_delete_button(url, message="هل أنت متأكد؟") %}
+<form action="{{ url }}" class="d-inline" method="POST" onsubmit="return confirm('{{ message }}')">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+<button class="btn btn-sm btn-danger" type="submit">حذف</button>
+</form>
+{% endmacro %}

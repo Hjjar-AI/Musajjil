@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container text-start" dir="rtl">
+    <h1 class="mb-4 text-center"><i class="bi bi-book-half ms-2"></i>📘 System Manual</h1>
+    <div class="alert alert-info text-center">
+        <i class="bi bi-info-circle-fill ms-2"></i> This guide covers all available system functions.
+    </div>
+
+    <!-- Quick navigation cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100 border-top border-primary border-4 shadow-sm">
+                <div class="card__body">
+                    <h5 class="card__title text-primary"><i class="bi bi-speedometer2 ms-1"></i> Dashboard</h5>
+                    <p class="card__text">KPIs, alerts, quick statistics.</p>
+                    <a href="#dashboard-detail" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100 border-top border-success border-4 shadow-sm">
+                <div class="card__body">
+                    <h5 class="card__title text-success"><i class="bi bi-people-fill ms-1"></i> Employees</h5>
+                    <p class="card__text">Complete employee management, contracts, tags, service, import/export.</p>
+                    <a href="#employees-detail" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100 border-top border-info border-4 shadow-sm">
+                <div class="card__body">
+                    <h5 class="card__title text-info"><i class="bi bi-calendar-check ms-1"></i> Leaves</h5>
+                    <p class="card__text">Types, balances, registration, calendar, smart holidays.</p>
+                    <a href="#leaves-detail" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100 border-top border-warning border-4 shadow-sm">
+                <div class="card__body">
+                    <h5 class="card__title text-warning"><i class="bi bi-clipboard-data ms-1"></i> Evaluations</h5>
+                    <p class="card__text">General evaluation (1-5) with flexible criteria and radar chart.</p>
+                    <a href="#evaluations-detail" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100 border-top border-danger border-4 shadow-sm">
+                <div class="card__body">
+                    <h5 class="card__title text-danger"><i class="bi bi-bar-chart-steps ms-1"></i> Reports</h5>
+                    <p class="card__text">Individual report (PDF/Word) and data export.</p>
+                    <a href="#reports-detail" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100 border-top border-secondary border-4 shadow-sm">
+                <div class="card__body">
+                    <h5 class="card__title text-secondary"><i class="bi bi-gear ms-1"></i> Settings & Maintenance</h5>
+                    <p class="card__text">Classifications, vacation types, departments, holidays, users, backups.</p>
+                    <a href="#settings-detail" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100 border-top border-primary border-4 shadow-sm">
+                <div class="card__body">
+                    <h5 class="card__title text-primary"><i class="bi bi-calendar-heart ms-1"></i> Smart Holidays</h5>
+                    <p class="card__text">Dynamic rules for recurring holidays.</p>
+                    <a href="#smart-holidays-detail" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100 border-top border-warning border-4 shadow-sm">
+                <div class="card__body">
+                    <h5 class="card__title text-warning"><i class="bi bi-magic ms-1"></i> Wizard Mode</h5>
+                    <p class="card__text">Generate demo data for testing.</p>
+                    <a href="#wizard-detail" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100 border-top border-secondary border-4 shadow-sm">
+                <div class="card__body">
+                    <h5 class="card__title text-secondary"><i class="bi bi-palette ms-1"></i> Themes</h5>
+                    <p class="card__text">Customize appearance with 9 different color schemes.</p>
+                    <a href="#themes-detail" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-5">
+
+    <!-- 1. Dashboard -->
+    <div id="dashboard-detail" class="mt-5">
+        <h2><i class="bi bi-speedometer2 ms-1"></i> 1. Dashboard</h2>
+        <p>The dashboard is the main page after login. It provides an overview of organizational performance through KPI cards and important alerts.</p>
+        <ul>
+            <li><strong>KPI Cards:</strong> Employee count, tags, evaluations, last backup, total leave days, average per employee, upcoming leaves, percentage who took leave, top department, remaining holidays this month, sick leaves, employees with no leave, annual absence rate, oldest employee.</li>
+            <li><strong>Alerts:</strong> Unprocessed year warning, contracts ending within 30 days, unconverted delay hours, unusual leave patterns.</li>
+            <li><strong>Quick Actions:</strong> Export CSV/Excel, Import Excel, manual backup, import classifications/criteria, reset balances, wizard mode.</li>
+        </ul>
+    </div>
+
+    <!-- 2. Employees Management -->
+    <div id="employees-detail" class="mt-5">
+        <h2><i class="bi bi-people-fill ms-1"></i> 2. Employee Management</h2>
+        <p>Complete employee data management with dynamic customizable fields.</p>
+        <ul>
+            <li><strong>Employee List:</strong> Tabular view with advanced search, filtering by tags, department, classification, age, hire date, sorting, bulk edit (department, classification, tags).</li>
+            <li><strong>Add/Edit Employee:</strong> Form divided into sections (basic info, additional details, administrative info, other info). Includes all required fields: job number, name, father name, mother name, birth date, gender, nationality, disability, blood type, marital status, national ID, phone, hire date, education, Sham Cash account, job category, appointment status, workplace, department, classification, target service years, contract end date, uncompensated absence days, tags.</li>
+            <li><strong>Tags:</strong> Flexible employee classification, used for filtering and grouping.</li>
+            <li><strong>Service Calculator:</strong> Automatically calculates from work periods, allows manual addition, deducts uncompensated days, sets target service, calculates expected completion date.</li>
+            <li><strong>ID Card:</strong> Generates a card with QR code containing basic employee data, printable.</li>
+            <li><strong>Import/Export Employees:</strong> Export CSV, JSON, Excel. Import from Excel with column mapping, supports update/insert by job number.</li>
+            <li><strong>Soft Delete:</strong> Employees are moved to "Deleted Employees" list, can be restored.</li>
+        </ul>
+    </div>
+
+    <!-- 3. Leaves Management -->
+    <div id="leaves-detail" class="mt-5">
+        <h2><i class="bi bi-calendar-check ms-1"></i> 3. Leave Management</h2>
+        <ul>
+            <li><strong>Leave Types:</strong> Customizable (Administrative, Unpaid, Paid Sick, Unpaid Sick, Maternity, Unexcused, Lateness (3 hours), Hourly Leave). Each type has hours per day and yearly flag.</li>
+            <li><strong>Entitlements:</strong> Default per classification, with individual override per employee. Year reset without carryover.</li>
+            <li><strong>Individual Leave Registration:</strong> Quick form with employee search, leave type, dates, hours (for lateness/hourly), automatic day calculation excluding Fridays and holidays. If type empty, default is used.</li>
+            <li><strong>Bulk Leave Registration:</strong> Register leave for groups based on tags or classifications.</li>
+            <li><strong>Calendar:</strong> Monthly leave view with drag‑and‑drop to modify dates, filtering by employee/department, print button.</li>
+            <li><strong>Team Calendar:</strong> View department team leaves.</li>
+            <li><strong>Public Holidays:</strong> Add fixed (yearly) or variable (manual) holidays.</li>
+            <li><strong>Lateness to Leave Conversion:</strong> Automatic conversion of accumulated hours to regular leave according to priorities.</li>
+        </ul>
+    </div>
+
+    <!-- 4. Evaluations -->
+    <div id="evaluations-detail" class="mt-5">
+        <h2><i class="bi bi-clipboard-data ms-1"></i> 4. Evaluations</h2>
+        <ul>
+            <li><strong>Evaluation Criteria:</strong> General or classification‑specific, with descriptions for each score (1‑5).</li>
+            <li><strong>General Evaluation Form:</strong> Select employee, evaluator name, date, assign scores (1‑5) per criterion, saved with radar chart display.</li>
+            <li><strong>View Evaluations:</strong> Each employee has a page showing all previous evaluations with radar charts.</li>
+            <li><strong>Import Evaluation Results:</strong> Upload Excel or CSV file with columns "Job Number", "Evaluation Date", "Evaluator Name", and criterion columns. Preview and map columns before import.</li>
+            <li><strong>Delete Evaluation:</strong> Can delete any existing evaluation.</li>
+        </ul>
+    </div>
+
+    <!-- 5. Reports -->
+    <div id="reports-detail" class="mt-5">
+        <h2><i class="bi bi-bar-chart-steps ms-1"></i> 5. Reports</h2>
+        <ul>
+            <li><strong>Individual Employee Report:</strong> Shows basic data, current leave balances, leave log. Export to PDF and Word (docx).</li>
+            <li><strong>Monthly Leave Report Export:</strong> Select month, export CSV or JSON.</li>
+            <li><strong>Full Database Export:</strong> Export all tables as JSON (complete backup).</li>
+        </ul>
+    </div>
+
+    <!-- 6. Settings and Maintenance -->
+    <div id="settings-detail" class="mt-5">
+        <h2><i class="bi bi-gear ms-1"></i> 6. Settings & Maintenance</h2>
+        <ul>
+            <li><strong>Classifications:</strong> Add/delete job classifications (Doctor, Nurse, Admin...).</li>
+            <li><strong>Default Entitlements per Classification:</strong> Set default days per leave type for each classification.</li>
+            <li><strong>Leave Types:</strong> Add/edit/delete leave types with hours per day and yearly flag.</li>
+            <li><strong>Departments:</strong> Manage departments (add, edit, delete).</li>
+            <li><strong>Public Holidays:</strong> Add fixed (yearly) or variable (specific date) holidays.</li>
+            <li><strong>User & Role Management (admin only):</strong> Roles: admin, registerar, supervisor, viewer with different permissions.</li>
+            <li><strong>Backups:</strong> Manual button in dashboard and automatic every 7 days (keeps last 4 copies). Restore from JSON file.</li>
+            <li><strong>Year Start Processing:</strong> Creates entitlements for next year (no carryover).</li>
+            <li><strong>Reset Balances:</strong> Reset current year entitlements to classification defaults.</li>
+            <li><strong>Import Classifications & Criteria from text files:</strong> Button in dashboard to import from classifications.txt, evaluation_criteria.txt, etc.</li>
+        </ul>
+    </div>
+
+    <!-- 7. Smart Holidays -->
+    <div id="smart-holidays-detail" class="mt-5">
+        <h2><i class="bi bi-calendar-heart ms-1"></i> 7. Smart Holidays</h2>
+        <p>Create rules for recurring holidays not based on fixed dates, such as:</p>
+        <ul>
+            <li><strong>Weekday:</strong> e.g., every Thursday (value 4).</li>
+            <li><strong>Day of month:</strong> e.g., days 1,15 of each month.</li>
+            <li><strong>Formula:</strong> e.g., "last Friday of month" or "first Monday of month".</li>
+            <li>Rules can be restricted to specific departments or classifications.</li>
+            <li>Preview holidays for current year to verify rules.</li>
+        </ul>
+        <p>These rules are used in leave day calculation (smart holidays are not counted as work days).</p>
+    </div>
+
+    <!-- 8. Wizard Mode (Demo Data) -->
+    <div id="wizard-detail" class="mt-5">
+        <h2><i class="bi bi-magic ms-1"></i> 8. Wizard Mode (Demo Data)</h2>
+        <p>Creates 10 demo employees with random leaves, tags, classifications, departments. Used for testing or demonstrations.</p>
+        <ul>
+            <li><strong>Start Demo Session:</strong> Adds 10 demo employees and stores their IDs in session.</li>
+            <li><strong>Cleanup Demo Data:</strong> Deletes all employees created by the wizard.</li>
+            <li><strong>Interactive Demo Mode:</strong> Separate version for easier cleanup.</li>
+        </ul>
+    </div>
+
+    <!-- 9. Themes -->
+    <div id="themes-detail" class="mt-5">
+        <h2><i class="bi bi-palette ms-1"></i> 9. Custom Themes</h2>
+        <p>You can change the entire system appearance with 9 different themes:</p>
+        <ul>
+            <li>Default (Blue)</li>
+            <li>Medical (Green)</li>
+            <li>Night (Dark)</li>
+            <li>Pastel</li>
+            <li>Light Day</li>
+            <li>Sunset</li>
+            <li>Ocean</li>
+            <li>Amber</li>
+            <li>Lavender</li>
+        </ul>
+        <p>Selected theme is saved in the browser and applied automatically on return. Auto dark mode based on device time can be enabled from user settings.</p>
+    </div>
+
+    <!-- 10. Import / Export Summary -->
+    <div id="importexport-detail" class="mt-5">
+        <h2><i class="bi bi-arrow-left-right ms-1"></i> 10. Import & Export</h2>
+        <ul>
+            <li><strong>Export Employees:</strong> CSV, JSON, Excel.</li>
+            <li><strong>Monthly Leave Report Export:</strong> CSV, JSON.</li>
+            <li><strong>Full Database Export:</strong> JSON (full backup).</li>
+            <li><strong>Import Employees:</strong> From Excel (xlsx) with column mapping, support update/insert by job number.</li>
+            <li><strong>Import General Evaluation Results:</strong> From Excel or CSV, with column mapping and validation.</li>
+            <li><strong>Import Classifications and Criteria:</strong> From text files (classifications.txt, evaluation_criteria.txt, etc.) via settings button.</li>
+            <li><strong>Full Database Import:</strong> Upload JSON file to restore previous backup (full replacement).</li>
+        </ul>
+    </div>
+
+    <div class="text-center mt-5 text-muted">
+        <hr>
+        <p>This manual serves as a complete reference for all available system functions. For additional inquiries, please contact the system administrator.</p>
+        <p>Last updated: June 8, 2026</p>
+    </div>
+</div>
+{% endblock %}

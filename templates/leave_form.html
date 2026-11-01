@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>تسجيل إجازة</h2>
+<form method="POST" id="leaveForm" class="row g-3">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="col-md-4">
+        <label class="form-label">نوع الإجازة</label>
+        <select class="form-select" name="vacation_type_id" required>
+            {% for vt in vac_types %}<option value="{{ vt.id }}">{{ vt.name }}</option>{% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">تاريخ البداية</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+            <input type="text" class="form-control date-picker" name="start_date" id="start_date" required placeholder="يوم/شهر/سنة">
+        </div>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">تاريخ النهاية</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+            <input type="text" class="form-control date-picker" name="end_date" id="end_date" required placeholder="يوم/شهر/سنة">
+        </div>
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">عدد الأيام</label>
+        <input type="number" step="0.5" class="form-control" name="days_taken" id="days_taken" readonly>
+    </div>
+    <div class="col-12">
+        <label class="form-label">ملاحظات (اختياري)</label>
+        <textarea class="form-control" name="notes" rows="2"></textarea>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">تسجيل</button>
+        <a href="{{ url_for('employees.detail', id=employee_id) }}" class="btn btn-secondary">إلغاء</a>
+    </div>
+</form>
+<script>
+(function() {
+    const startInput = document.getElementById('start_date');
+    const endInput = document.getElementById('end_date');
+    const daysInput = document.getElementById('days_taken');
+    function calcDays() {
+        if (startInput.value && endInput.value) {
+            function toDate(str) {
+                let parts = str.split('/');
+                if (parts.length === 3) return new Date(parts[2], parts[1]-1, parts[0]);
+                return new Date(str);
+            }
+            let start = toDate(startInput.value);
+            let end = toDate(endInput.value);
+            if (end >= start) {
+                let diff = (end - start) / (1000 * 60 * 60 * 24) + 1;
+                daysInput.value = diff % 1 === 0 ? diff : diff.toFixed(1);
+            } else {
+                daysInput.value = '';
+            }
+        }
+    }
+    startInput.addEventListener('change', calcDays);
+    endInput.addEventListener('change', calcDays);
+})();
+</script>
+{% endblock %}

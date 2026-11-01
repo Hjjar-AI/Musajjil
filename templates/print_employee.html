@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/>
+<title>تقرير موظف - {{ emp_data.get('الاسم الأول', '') }} {{ emp_data.get('الكنية', '') }}</title>
+<link href="{{ url_for('static', filename='css/bootstrap.rtl.min.css') }}" rel="stylesheet"/>
+<link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet"/>
+<style>
+    @media print { .no-print { display: none; } body { background: white; } .table { box-shadow: none; } }
+</style>
+</head>
+<body class="p-4">
+<h2>تقرير موظف: {{ emp_data.get('الاسم الأول', '') }} {{ emp_data.get('الكنية', '') }}</h2>
+<button class="btn btn-primary no-print mb-3" onclick="window.print()">طباعة</button>
+<h4>البيانات الأساسية</h4>
+<table class="table table--bordered">
+    {% for title, val in emp_data.items() %}
+        {% if title == 'تاريخ الولادة' or title == 'تاريخ المباشرة الأخيرة' %}
+        <tr><th>{{ title }}</th><td>{{ val | arabic_date }}</td></tr>
+        {% else %}
+        <tr><th>{{ title }}</th><td>{{ val }}</td></tr>
+        {% endif %}
+    {% endfor %}
+    <tr><th>التصنيف</th><td>{{ classification }}</td></tr>
+    <tr><th>الوسوم</th><td>{{ tags|join(', ') }}</td></tr>
+</table>
+<h4>أرصدة الإجازات الحالية</h4>
+<table class="table table--bordered">
+<thead class="table__header"><tr><th>النوع</th><th>الاستحقاق</th><th>المرحَّل</th><th>المستخدم</th><th>المتبقي</th></tr></thead>
+<tbody>{% for b in balances %}运转<td>{{ b.type }}</td><td>{{ b.entitled }}</td><td>{{ b.carried or 0 }}</td><td>{{ b.taken }}</td><td>{{ b.balance }}</td><tr>{% endfor %}</tbody>
+</table>
+<h4>سجل الإجازات</h4>
+<table class="table table--bordered">
+<thead class="table__header"><tr><th>النوع</th><th>من</th><th>إلى</th><th>الأيام</th><th>ملاحظات</th></tr></thead>
+<tbody>{% for l in leave_log %}运转<td>{{ l.vt_name }}</td><td>{{ l.start_date | arabic_date }}</td><td>{{ l.end_date | arabic_date }}</td><td>{{ l.days_taken }}</td><td>{{ l.notes or '' }}</td></tr>{% endfor %}</tbody>
+</table>
+</body>
+</html>

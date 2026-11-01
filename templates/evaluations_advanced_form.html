@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-{% if edit_mode %}pencil{% else %}plus-circle{% endif %} ms-1"></i>{% if edit_mode %}تعديل تقييم متقدم{% else %}إضافة تقييم متقدم (RANZCP WBA){% endif %}</h2>
+<div class="card">
+    <div class="card__header bg-primary text-white">
+        <i class="bi bi-clipboard-check"></i> بيانات التقييم
+    </div>
+    <div class="card__body">
+        <form method="POST" class="row g-3">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="col-md-4">
+                <label class="form-label">الموظف</label>
+                <select class="form-select" name="employee_id" required>
+                    <option value="">اختر</option>
+                    {% for e in employees %}
+                    <option value="{{ e.id }}" {% if edit_mode and eval.employee_id == e.id %}selected{% endif %}>{{ e.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">أداة التقييم</label>
+                <select class="form-select" name="tool_id" id="tool_select" required>
+                    <option value="">اختر</option>
+                    {% for t in tools %}
+                    <option value="{{ t.id }}" {% if edit_mode and eval.tool_id == t.id %}selected{% endif %}>{{ t.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">اسم المقيّم</label>
+                <input type="text" class="form-control" name="evaluator_name" required value="{{ eval.evaluator_name if edit_mode else '' }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">تاريخ التقييم</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                    <input type="text" class="form-control date-picker" name="evaluation_date" required value="{{ eval.evaluation_date if edit_mode else '' }}" placeholder="يوم/شهر/سنة">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">المرحلة</label>
+                <select class="form-select" name="developmental_stage">
+                    {% for stage in ['Basic','Proficient','Advanced'] %}
+                    <option value="{{ stage }}" {% if edit_mode and eval.developmental_stage == stage %}selected{% endif %}>{{ stage }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12">
+                <h5>معايير التقييم (0=غير ملاحظ, 1=أساسي, 2=متمكن, 3=متقدم)</h5>
+            </div>
+            <div id="criteria-container">
+                {% if edit_mode and criteria %}
+                    {% for c in criteria %}
+                    <div class="col-md-12 mb-2 border p-2">
+                        <label class="form-label fw-bold">{{ c.name }}</label>
+                        <div class="d-flex gap-3 small text-muted mb-1">
+                            <span><strong>Basic:</strong> {{ c.desc_basic or '—' }}</span>
+                            <span><strong>Proficient:</strong> {{ c.desc_proficient or '—' }}</span>
+                            <span><strong>Advanced:</strong> {{ c.desc_advanced or '—' }}</span>
+                        </div>
+                        <select class="form-select form-select-sm" name="score_{{ c.id }}">
+                            <option value="">--</option>
+                            {% for val in [0,1,2,3] %}
+                            <option value="{{ val }}" {% if c.current_score == val %}selected{% endif %}>{{ val }}{% if val==0 %} - غير ملاحظ{% elif val==1 %} - أساسي{% elif val==2 %} - متمكن{% elif val==3 %} - متقدم{% endif %}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">الرجاء اختيار أداة التقييم أولاً</p>
+                {% endif %}
+            </div>
+            <div class="col-12">
+                <label class="form-label">ما تم إنجازه بشكل جيد</label>
+                <textarea class="form-control" name="what_done_well" rows="2">{{ eval.what_done_well if edit_mode else '' }}</textarea>
+            </div>
+            <div class="col-12">
+                <label class="form-label">اقتراحات للتطوير</label>
+                <textarea class="form-control" name="suggestions" rows="2">{{ eval.suggestions if edit_mode else '' }}</textarea>
+            </div>
+            <div class="col-12">
+                <label class="form-label">الإجراءات المتفق عليها</label>
+                <textarea class="form-control" name="agreed_actions" rows="2">{{ eval.agreed_actions if edit_mode else '' }}</textarea>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">اسم المشرف</label>
+                <input type="text" class="form-control" name="supervisor_name" value="{{ eval.supervisor_name if edit_mode else '' }}">
+            </div>
+            <div class="col-12">
+                <label class="form-label">ملاحظات</label>
+                <textarea class="form-control" name="notes" rows="2">{{ eval.notes if edit_mode else '' }}</textarea>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">{% if edit_mode %}تحديث التقييم{% else %}حفظ التقييم{% endif %}</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% if not edit_mode %}
+<script type="module">
+    import { initAdvancedEval } from "{{ url_for('static', filename='js/evaluations-advanced.js') }}";
+    initAdvancedEval();
+</script>
+{% endif %}
+{% endblock %}

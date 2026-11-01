@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-gear ms-1"></i>إعدادات المستخدم</h2>
+<div class="card">
+    <div class="card__body">
+        <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="autoDarkModeToggle" {% if request.cookies.get('auto_dark_mode') == 'true' %}checked{% endif %}>
+            <label class="form-check-label" for="autoDarkModeToggle">الوضع الداكن التلقائي (حسب توقيت الجهاز)</label>
+        </div>
+        <p class="text-muted small">عند التفعيل، سيتغير الوضع الداكن تلقائياً في المساء ويعود للوضع الفاتح صباحاً.</p>
+    </div>
+</div>
+<script>
+const autoToggle = document.getElementById('autoDarkModeToggle');
+autoToggle.addEventListener('change', () => {
+    document.cookie = `auto_dark_mode=${autoToggle.checked};path=/;max-age=31536000`;
+    if (autoToggle.checked) {
+        const hour = new Date().getHours();
+        const shouldDark = hour >= 18 || hour < 6;
+        document.body.classList.toggle('dark-mode', shouldDark);
+        localStorage.setItem('darkMode', shouldDark);
+        const icon = document.getElementById('darkModeIcon');
+        if (icon) icon.className = shouldDark ? 'bi bi-sun-fill' : 'bi bi-moon-stars';
+    }
+});
+</script>
+{% endblock %}

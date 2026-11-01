@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-file-earmark-arrow-up ms-1"></i>استيراد موظفين من Excel</h2>
+<div class="card">
+    <div class="card__header bg-primary text-white">
+        <i class="bi bi-upload"></i> رفع الملف
+    </div>
+    <div class="card__body">
+        <form method="POST" enctype="multipart/form-data" class="row g-3">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="col-12">
+                <label class="form-label">ملف Excel (.xlsx, .xls)</label>
+                <input type="file" class="form-control" name="file" accept=".xlsx,.xls" required>
+                <div class="form-text">يجب أن يحتوي الملف على صف ترويسة (header) بأسماء الأعمدة.</div>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-upload ms-1"></i>رفع الملف</button>
+                <a href="{{ url_for('employees.list') }}" class="btn btn-secondary">إلغاء</a>
+            </div>
+        </form>
+        <hr>
+        <h5>تنسيق الملف المتوقع</h5>
+        <div class="row">
+            <div class="col-md-6">
+                <ul>
+                    <li>الرقم الوظيفي <span class="text-danger">*</span> (فريد)</li>
+                    <li>الاسم الأول</li>
+                    <li>الكنية</li>
+                    <li>اسم الأب</li>
+                    <li>اسم الأم وكنيتها</li>
+                    <li>مكان الولادة</li>
+                    <li>تاريخ الولادة (YYYY-MM-DD)</li>
+                    <li>الجنس (ذكر/أنثى)</li>
+                    <li>تصنيف (يجب أن يكون موجوداً في النظام)</li>
+                    <li>القسم (يجب أن يكون موجوداً في النظام)</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <ul>
+                    <li>الجنسية</li>
+                    <li>لديه إعاقة (نعم/لا)</li>
+                    <li>نوع الإعاقة</li>
+                    <li>مكان السكن الحالي</li>
+                    <li>زمرة الدم (A+, A-, B+, B-, AB+, AB-, O+, O-)</li>
+                    <li>الحالة الاجتماعية</li>
+                    <li>الرقم الوطني</li>
+                    <li>رقم الهاتف المحمول</li>
+                    <li>تاريخ المباشرة الأخيرة (YYYY-MM-DD)</li>
+                    <li>tags (وسوم مفصولة بفواصل)</li>
+                </ul>
+            </div>
+        </div>
+        <p class="text-muted">بعد الرفع، ستتمكن من تعيين الأعمدة يدوياً ثم معاينة البيانات قبل الحفظ.</p>
+    </div>
+</div>
+{% endblock %}

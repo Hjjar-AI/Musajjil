@@ -1,0 +1,34 @@
+{# templates/_macros-leave.html #}
+{% macro leave_log_table(leave_log) %}
+<div class="table--responsive">
+<table class="table table--bordered">
+<thead class="table-secondary table__header">
+<tr>
+<th>النوع</th>
+<th>من</th>
+<th>إلى</th>
+<th>الأيام</th>
+<th>ملاحظات</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+        {% for l in leave_log %}
+        <tr>
+<td>{{ l.vt_name }}</td>
+<td>{{ l.start_date }}</td>
+<td>{{ l.end_date }}</td>
+<td>{{ l.days_taken }}</td>
+<td>{{ l.notes or '' }}</td>
+<td>
+<form action="{{ url_for('employees.leave_delete', id=l.employee_id, log_id=l.id) }}" method="POST">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+<button class="btn btn-sm btn-danger" onclick="return confirm('حذف الإجازة؟')" type="submit">حذف</button>
+</form>
+</td>
+</tr>
+        {% endfor %}
+        </tbody>
+</table>
+</div>
+{% endmacro %}

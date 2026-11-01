@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-calendar-event ms-1"></i>العطل الرسمية</h2>
+<div class="card mb-3">
+    <div class="card__header bg-primary text-white">
+        <i class="bi bi-plus-circle"></i> إضافة عطلة جديدة
+    </div>
+    <div class="card__body">
+        <form action="{{ url_for('holidays.add') }}" class="holidays-form" method="POST">
+            <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+            <div class="holidays-form__field">
+                <label class="form-label">اسم العطلة</label>
+                <input class="form-control" name="name" required type="text">
+            </div>
+            <div class="holidays-form__field">
+                <label class="form-label">النوع</label>
+                <select class="form-select" id="holiday_type" name="is_fixed">
+                    <option value="0">عطلة متغيرة</option>
+                    <option value="1">عطلة ثابتة سنوياً</option>
+                </select>
+            </div>
+            <div class="holidays-form__field" id="variable_date_group">
+                <label class="form-label">التاريخ</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                    <input class="form-control date-picker" name="date" placeholder="يوم/شهر/سنة" type="text">
+                </div>
+            </div>
+            <div class="holidays-form__field" id="fixed_date_group" style="display:none;">
+                <label class="form-label">الشهر</label>
+                <select class="form-select" name="month">
+                    {% for m in range(1,13) %}<option value="{{ m }}">{{ m }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="holidays-form__field" id="fixed_day_group" style="display:none;">
+                <label class="form-label">اليوم</label>
+                <select class="form-select" name="day">
+                    {% for d in range(1,32) %}<option value="{{ d }}">{{ d }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="holidays-form__actions">
+                <button class="btn btn-primary" type="submit">إضافة</button>
+            </div>
+        </form>
+        <div class="form-text text-muted mt-2"><i class="bi bi-info-circle"></i> للعطل الثابتة: حدد الشهر واليوم فقط. التاريخ المخزن هو 2000-شهر-يوم، لكنه يُطبّق سنوياً تلقائياً.</div>
+    </div>
+</div>
+
+<h4>العطل الثابتة (سنوية)</h4>
+<div class="table--responsive">
+    <table class="table table--bordered">
+        <thead class="table__header">
+            <tr><th>الاسم</th><th>التاريخ (شهر/يوم)</th><th></th></tr>
+        </thead>
+        <tbody>
+            {% for h in fixed_holidays %}
+            <tr>
+                <td>{{ h.name }}</td>
+                <td>{{ h.date[5:] }}</td>
+                <td>
+                    <form class="d-inline" action="{{ url_for('holidays.delete', id=h.id) }}" method="POST" data-confirm-message="حذف العطلة {{ h.name }}؟">
+                        <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+                        <button class="btn btn-sm btn-danger">حذف</button>
+                    </form>
+                 </td>
+             </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<h4>العطل المتغيرة (يدوية)</h4>
+<div class="table--responsive">
+    <table class="table table--bordered">
+        <thead class="table__header">
+            <tr><th>الاسم</th><th>التاريخ</th><th></th></tr>
+        </thead>
+        <tbody>
+            {% for h in variable_holidays %}
+            <tr>
+                <td>{{ h.name }}</td>
+                <td>{{ h.date | arabic_date }}</td>
+                <td>
+                    <form class="d-inline" action="{{ url_for('holidays.delete', id=h.id) }}" method="POST" data-confirm-message="حذف العطلة {{ h.name }}؟">
+                        <input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+                        <button class="btn btn-sm btn-danger">حذف</button>
+                    </form>
+                  </td>
+             </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    (function() {
+        const typeSelect = document.getElementById('holiday_type');
+        const variableGroup = document.getElementById('variable_date_group');
+        const fixedMonth = document.getElementById('fixed_date_group');
+        const fixedDay = document.getElementById('fixed_day_group');
+        function update() {
+            if (typeSelect.value === '1') {
+                if (variableGroup) variableGroup.style.display = 'none';
+                if (fixedMonth) fixedMonth.style.display = 'block';
+                if (fixedDay) fixedDay.style.display = 'block';
+            } else {
+                if (variableGroup) variableGroup.style.display = 'block';
+                if (fixedMonth) fixedMonth.style.display = 'none';
+                if (fixedDay) fixedDay.style.display = 'none';
+            }
+        }
+        typeSelect.addEventListener('change', update);
+        update();
+    })();
+</script>
+{% endblock %}

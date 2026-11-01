@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-check-circle ms-1"></i>تأكيد استيراد الموظفين - {{ filename }}</h2>
+<div class="alert alert-info">
+    <strong>إجمالي الصفوف في الملف:</strong> {{ total_rows }}
+</div>
+{% if errors %}
+<div class="alert alert-danger">
+    <strong><i class="bi bi-exclamation-triangle"></i> تم اكتشاف {{ errors|length }} خطأ/تحذير:</strong>
+    <ul class="mb-0 mt-2">{% for err in errors %}<li>{{ err }}</li>{% endfor %}</ul>
+</div>
+{% endif %}
+<div class="card mb-4">
+    <div class="card__header bg-primary text-white">
+        <i class="bi bi-table"></i> معاينة البيانات بعد التعيين (أول 10 صفوف)
+    </div>
+    <div class="card__body">
+        <div class="table--responsive">
+            <table class="table table--sm table--bordered">
+                <thead class="table__header">
+                    <tr>
+                        {% for field in field_names %}
+                        <th>{{ field }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in preview_data %}
+                    <tr>
+                        {% for field in field_names %}
+                        <td>{{ row[field] }}<\/td>
+                        {% endfor %}
+                     </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<form method="POST" action="{{ url_for('employee_import.confirm_import') }}" class="row g-3">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="confirm" value="yes">
+    <div class="col-12">
+        <button type="submit" class="btn btn-success" {% if errors %}disabled{% endif %}>
+            <i class="bi bi-save"></i> تأكيد الاستيراد
+        </button>
+        <a href="{{ url_for('employee_import.upload') }}" class="btn btn-secondary">إلغاء</a>
+    </div>
+</form>
+<p class="text-muted mt-3">سيتم إضافة الموظفين الجدد وتحديث الموجودين (حسب الرقم الوظيفي).</p>
+{% endblock %}

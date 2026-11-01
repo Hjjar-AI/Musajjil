@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-clipboard-check ms-1"></i>التقييمات المتقدمة (WBA)</h2>
+<div class="card mb-4">
+<div class="card__header bg-primary text-white">
+<i class="bi bi-funnel"></i> تصفية
+    </div>
+<div class="card__body">
+<form class="row g-3" method="GET">
+<div class="col-md-3">
+<label class="form-label">الموظف</label>
+<select class="form-select" name="employee_id">
+<option value="">الكل</option>
+                    {% for e in employees %}
+                    <option value="{{ e.id }}" {% if selected_employee == e.id %}selected{% endif %}>{{ e.name }}</option>
+                    {% endfor %}
+                </select>
+</div>
+<div class="col-md-3">
+<label class="form-label">الأداة</label>
+<select class="form-select" name="tool_id">
+<option value="">الكل</option>
+                    {% for t in tools %}
+                    <option value="{{ t.id }}" {% if selected_tool == t.id %}selected{% endif %}>{{ t.name }}</option>
+                    {% endfor %}
+                </select>
+</div>
+<div class="col-md-2 align-self-end">
+<button class="btn btn-primary" type="submit"><i class="bi bi-funnel ms-1"></i>تصفية</button>
+</div>
+</form>
+</div>
+</div>
+<a class="btn btn-success mb-3" href="{{ url_for('adv_eval.add_eval') }}"><i class="bi bi-plus-circle ms-1"></i>إضافة تقييم متقدم</a>
+<div class="table--responsive">
+<table class="table table--bordered">
+<thead class="table__header">
+<tr><th>الموظف</th><th>الأداة</th><th>التاريخ</th><th>المقيم</th><th>المرحلة</th><th></th></tr>
+</thead>
+<tbody>
+            {% for e in evals %}
+            <tr>
+<td>{{ e.employee_name }}</td>
+<td>{{ e.tool_name }}</td>
+<td>{{ e.evaluation_date | arabic_date }}</td>
+<td>{{ e.evaluator_name }}</td>
+<td>{{ e.developmental_stage }}</td>
+<td>
+<div class="btn-group btn-group-sm">
+<a class="btn btn-outline-primary" href="{{ url_for('adv_eval.view_eval', id=e.id) }}">عرض</a>
+<a class="btn btn-outline-info" href="{{ url_for('adv_eval.edit_eval', id=e.id) }}">تعديل</a>
+<a class="btn btn-outline-danger" href="{{ url_for('adv_eval.pdf_eval', id=e.id) }}" target="_blank">PDF</a>
+<form action="{{ url_for('adv_eval.delete_eval', id=e.id) }}" class="d-inline" method="POST" onsubmit="return confirm('حذف؟')">
+<input name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+<button class="btn btn-outline-danger">حذف</button>
+</form>
+</div>
+</td>
+</tr>
+            {% endfor %}
+        </tbody>
+</table>
+</div>
+{% if total_pages > 1 %}
+<nav><ul class="pagination justify-content-center">
+    {% for p in range(1, total_pages+1) %}
+    <li class="page-item {% if p == page %}active{% endif %}">
+<a class="page-link" href="?page={{ p }}{% if selected_employee %}&amp;employee_id={{ selected_employee }}{% endif %}{% if selected_tool %}&amp;tool_id={{ selected_tool }}{% endif %}">{{ p }}</a>
+</li>
+    {% endfor %}
+</ul></nav>
+{% endif %}
+{% endblock %}
